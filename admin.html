@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Clover Golf Co. Admin</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png?v=4" />
+    <link rel="shortcut icon" type="image/png" href="assets/favicon.png?v=4" />
+    <link rel="apple-touch-icon" href="assets/favicon.png?v=4" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="admin-page admin-locked">
+    <section class="login-screen" data-login-screen>
+      <div class="login-shell">
+        <div class="login-brand-panel">
+          <img
+            class="login-logo"
+            src="assets/clover-logo-original.png"
+            alt="Logo oficial Clover Golf Co."
+          />
+          <p class="eyebrow">Acceso privado</p>
+          <h1>Clover Admin</h1>
+          <p>
+            Gestion interna para revisar identidad visual, producto y mensajes
+            de clientes interesados en las gorras.
+          </p>
+        </div>
+        <form class="login-card" data-admin-login>
+          <div>
+            <p class="eyebrow">Cuenta admin</p>
+            <h2>Iniciar sesion</h2>
+          </div>
+          <label class="field">
+            <span>Email</span>
+            <input name="email" type="email" autocomplete="username" required />
+          </label>
+          <label class="field">
+            <span>Password</span>
+            <input name="password" type="password" autocomplete="current-password" required />
+          </label>
+          <label class="field login-2fa-field" data-login-two-factor-field hidden>
+            <span>Codigo 2FA</span>
+            <input
+              name="twoFactorCode"
+              type="text"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              maxlength="6"
+              pattern="[0-9]{6}"
+            />
+          </label>
+          <button class="primary-button login-submit" type="submit">Entrar al panel</button>
+          <p class="form-status login-error" data-login-error role="alert"></p>
+        </form>
+      </div>
+    </section>
+
+    <header class="site-header">
+      <a class="brand-lockup" href="/admin" aria-label="Clover Golf Co. admin" data-admin-home-link>
+        <img class="nav-logo" src="assets/clover-logo-small.png" alt="" aria-hidden="true" />
+        <span>Clover Admin</span>
+      </a>
+      <nav class="main-nav" aria-label="Navegacion admin">
+        <a href="#logo">Logo</a>
+        <a href="#paleta">Paleta</a>
+        <a href="#productos">Gorras</a>
+        <a href="#mensajes">Bandeja</a>
+        <a href="#vista-360">360</a>
+      </nav>
+      <div class="header-actions">
+        <a class="header-action header-action-secondary" href="/" data-public-home-link>Ver web</a>
+        <button class="header-action security-action" type="button" data-security-open>
+          Cuenta segura
+        </button>
+        <button class="header-action admin-logout" type="button" data-admin-logout>Salir</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="admin-hero" id="logo">
+        <div class="admin-hero-copy">
+          <p class="eyebrow">Panel interno</p>
+          <h1>Guia visual Clover</h1>
+          <p class="hero-text">
+            Espacio privado para revisar el logo, colores, assets de producto y
+            detalles tecnicos sin mostrar esta informacion en la pagina publica.
+          </p>
+        </div>
+        <figure class="admin-logo-card">
+          <img src="assets/clover-logo-transparent.png" alt="Logo oficial Clover Golf Co." />
+        </figure>
+      </section>
+
+      <section class="palette-section" id="paleta">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Base cromatica</p>
+            <h2>Colores de marca</h2>
+          </div>
+        </div>
+        <div class="palette-grid">
+          <article class="color-card deep-green">
+            <span>Verde fairway</span>
+            <strong>#123F27</strong>
+          </article>
+          <article class="color-card clover-olive">
+            <span>Oliva clover</span>
+            <strong>#6F8420</strong>
+          </article>
+          <article class="color-card cream">
+            <span>Crema golf</span>
+            <strong>#F2E9CF</strong>
+          </article>
+          <article class="color-card leather">
+            <span>Cuero acento</span>
+            <strong>#A86332</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="product-base" id="productos">
+        <div class="product-copy">
+          <p class="eyebrow">Direccion visual</p>
+          <h2>Merch premium con aire vintage</h2>
+          <p>
+            Referencia visual de coleccion para mantener consistencia en gorras,
+            polos, empaques y fotografias de producto.
+          </p>
+        </div>
+        <div class="cap-showcase" aria-label="Gorras reales Clover Golf Co.">
+          <img
+            src="assets/clover-caps.png"
+            alt="Cuatro gorras reales Clover Golf Co. en crema, verde, cuero y rayas"
+          />
+        </div>
+      </section>
+
+      <section class="admin-messages-section" id="mensajes">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Mensajeria</p>
+            <h2>Bandeja de clientes</h2>
+          </div>
+          <button class="secondary-button" type="button" data-refresh-messages>Actualizar</button>
+        </div>
+        <div class="message-stats" aria-label="Resumen de mensajes">
+          <article>
+            <span>Total recibidos</span>
+            <strong data-message-count>0</strong>
+          </article>
+          <article>
+            <span>Ultimo mensaje</span>
+            <strong data-last-message>Sin mensajes</strong>
+          </article>
+        </div>
+        <div class="admin-message-list" data-message-list></div>
+        <p class="empty-messages" data-empty-messages>No hay mensajes todavia.</p>
+      </section>
+
+      <section class="cap-360-section" id="vista-360">
+        <div class="cap-360-copy">
+          <p class="eyebrow">Vista 360</p>
+          <h2>Detalle tecnico de fabricacion</h2>
+          <p>
+            Estudio visual con vistas reales, bordado en relieve, materiales,
+            costuras, cierre, interior y acabados listos para produccion.
+          </p>
+        </div>
+        <figure class="cap-360-preview">
+          <img
+            src="assets/cap-360-signature-leather-production.png?v=2"
+            alt="Estudio tecnico 360 de gorra Clover Golf Co. con vista frontal, lateral, trasera e interior"
+          />
+        </figure>
+      </section>
+    </main>
+
+    <section class="security-modal" data-security-modal hidden>
+      <div class="security-card" role="dialog" aria-modal="true" aria-labelledby="security-title">
+        <div class="security-card-top">
+          <div>
+            <p class="eyebrow">Cuenta protegida</p>
+            <h2 id="security-title">Acceso admin</h2>
+          </div>
+          <button class="security-close" type="button" aria-label="Cerrar seguridad" data-security-close>
+            Cerrar
+          </button>
+        </div>
+
+        <div class="security-layout">
+          <div class="security-copy">
+            <span>Google Authenticator</span>
+            <h3>Verificacion 2FA</h3>
+            <p>
+              La cuenta queda separada del panel principal. Para abrir cambios
+              de correo o contrasena se valida un codigo de seis digitos que
+              cambia cada 30 segundos.
+            </p>
+          </div>
+
+          <div class="security-panel">
+            <article class="account-summary">
+              <span>Correo actual</span>
+              <strong data-current-admin-email>prueba07@gmail.com</strong>
+            </article>
+
+            <div class="security-gate" data-security-gate>
+              <section class="two-factor-box" data-two-factor-setup-gate hidden>
+                <div>
+                  <span class="security-kicker">Primer uso</span>
+                  <h3>Configurar Google Authenticator</h3>
+                  <p>
+                    Genera una clave, agregala en Google Authenticator y luego
+                    confirma el primer codigo de seis digitos.
+                  </p>
+                </div>
+
+                <form class="two-factor-form" data-two-factor-setup-form>
+                  <label class="field">
+                    <span>Contrasena actual</span>
+                    <input
+                      name="currentPassword"
+                      type="password"
+                      autocomplete="current-password"
+                      required
+                    />
+                  </label>
+                  <button class="primary-button" type="submit">Generar clave 2FA</button>
+                </form>
+
+                <div class="two-factor-secret-card" data-two-factor-secret-panel hidden>
+                  <span>Clave de configuracion</span>
+                  <code data-two-factor-secret></code>
+                  <p>
+                    En Google Authenticator toca el simbolo + y elige ingresar
+                    clave de configuracion.
+                  </p>
+                  <form class="two-factor-form" data-two-factor-enable-form>
+                    <input type="hidden" name="secret" data-two-factor-secret-input />
+                    <label class="field">
+                      <span>Codigo de Google Authenticator</span>
+                      <input
+                        name="twoFactorCode"
+                        type="text"
+                        inputmode="numeric"
+                        autocomplete="one-time-code"
+                        maxlength="6"
+                        pattern="[0-9]{6}"
+                        required
+                      />
+                    </label>
+                    <button class="primary-button" type="submit">Activar 2FA</button>
+                  </form>
+                </div>
+              </section>
+
+              <section class="two-factor-box" data-two-factor-verify-gate hidden>
+                <div>
+                  <span class="security-kicker">Cuenta protegida</span>
+                  <h3>Desbloquear cambios</h3>
+                  <p>
+                    Escribe el codigo actual de Google Authenticator para abrir
+                    el panel de correo y contrasena.
+                  </p>
+                </div>
+                <form class="two-factor-form" data-two-factor-verify-form>
+                  <label class="field">
+                    <span>Codigo 2FA</span>
+                    <input
+                      name="twoFactorCode"
+                      type="text"
+                      inputmode="numeric"
+                      autocomplete="one-time-code"
+                      maxlength="6"
+                      pattern="[0-9]{6}"
+                      required
+                    />
+                  </label>
+                  <button class="primary-button" type="submit">Desbloquear cuenta</button>
+                </form>
+              </section>
+
+              <p class="form-status" data-two-factor-status role="status"></p>
+            </div>
+
+            <div class="security-unlocked" data-security-unlocked hidden>
+              <form class="account-form" data-account-form>
+                <div class="form-grid">
+                  <label class="field full-field">
+                    <span>Nuevo correo</span>
+                    <input name="email" type="email" autocomplete="username" required />
+                  </label>
+                  <label class="field">
+                    <span>Contrasena actual</span>
+                    <input
+                      name="currentPassword"
+                      type="password"
+                      autocomplete="current-password"
+                      required
+                    />
+                  </label>
+                  <label class="field">
+                    <span>Nueva contrasena</span>
+                    <input name="newPassword" type="password" autocomplete="new-password" />
+                  </label>
+                  <label class="field full-field">
+                    <span>Confirmar nueva contrasena</span>
+                    <input name="confirmPassword" type="password" autocomplete="new-password" />
+                  </label>
+                  <label class="field full-field" data-account-two-factor-field hidden>
+                    <span>Codigo 2FA actual</span>
+                    <input
+                      name="twoFactorCode"
+                      type="text"
+                      inputmode="numeric"
+                      autocomplete="one-time-code"
+                      maxlength="6"
+                      pattern="[0-9]{6}"
+                    />
+                  </label>
+                </div>
+                <button class="primary-button account-submit" type="submit">Guardar cambios</button>
+                <p class="form-status" data-account-status role="status"></p>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <span>Clover Golf Co.</span>
+      <span>Admin brand system</span>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
