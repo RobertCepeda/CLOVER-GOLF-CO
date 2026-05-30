@@ -126,16 +126,16 @@ if (isAdminPage) {
   const messageCount = document.querySelector("[data-message-count]");
   const lastMessage = document.querySelector("[data-last-message]");
   const capImagesByStyle = {
-    "Signature Leather": "assets/cap-signature-leather.png?v=4",
-    "Forest Classic": "assets/cap-forest-classic.png?v=4",
-    "Stripe Course": "assets/cap-stripe-course.png?v=4",
-    "Cream Heritage": "assets/cap-cream-heritage.png?v=4",
-    "Olive Performance": "assets/cap-olive-performance.png?v=4",
-    "Tour Cream": "assets/cap-tour-cream.png?v=4",
-    "Women's Bucket Hat": "assets/cap-womens-bucket.png?v=4",
-    "Jiuguva Visor": "assets/cap-womens-visor.png?v=4",
-    "Fairway Classic": "assets/cap-womens-fairway-classic.png?v=4",
-    "Cream Fairway": "assets/cap-womens-cream-fairway.png?v=4",
+    "Signature Leather": "assets/cap-thumb-signature-leather.png?v=3",
+    "Forest Classic": "assets/cap-thumb-forest-classic.png?v=3",
+    "Stripe Course": "assets/cap-thumb-stripe-course.png?v=3",
+    "Cream Heritage": "assets/cap-thumb-cream-heritage.png?v=3",
+    "Olive Performance": "assets/cap-thumb-olive-performance.png?v=3",
+    "Tour Cream": "assets/cap-thumb-tour-cream.png?v=3",
+    "Women's Bucket Hat": "assets/cap-thumb-womens-bucket.png?v=3",
+    "Jiuguva Visor": "assets/cap-thumb-jiuguva-visor.png?v=3",
+    "Fairway Classic": "assets/cap-thumb-fairway-classic.png?v=3",
+    "Cream Fairway": "assets/cap-thumb-cream-fairway.png?v=3",
   };
   const accountState = {
     twoFactorEnabled: false,
@@ -298,7 +298,7 @@ if (isAdminPage) {
 
     const capImage = document.createElement("img");
     const capStyle = message.capStyle || "No especificado";
-    capImage.src = capImagesByStyle[capStyle] || "assets/cap-womens-cream-fairway.png?v=4";
+    capImage.src = capImagesByStyle[capStyle] || "assets/cap-thumb-cream-fairway.png?v=3";
     capImage.alt = `Gorra seleccionada: ${capStyle}`;
 
     const capName = document.createElement("strong");
