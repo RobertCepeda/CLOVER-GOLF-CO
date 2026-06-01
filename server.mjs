@@ -6,10 +6,12 @@ import { dirname, extname, join, normalize } from "node:path";
 const root = process.cwd();
 const port = 5173;
 const host = "127.0.0.1";
+const databaseUrl = process.env.DATABASE_URL || "";
 const databaseFile = join(root, "data", "clover golf.json");
 const messagesFile = join(root, "data", "messages.json");
 const accountFile = join(root, "data", "account.json");
 const customersFile = join(root, "data", "customers.json");
+const schemaFile = join(root, "database", "schema.sql");
 const defaultAccount = {
   email: "prueba07@gmail.com",
   password: "12345678",
@@ -33,6 +35,46 @@ const mimeTypes = {
 const sendJson = (response, statusCode, payload) => {
   response.writeHead(statusCode, { "Content-Type": "application/json; charset=utf-8" });
   response.end(JSON.stringify(payload));
+};
+
+let pgPoolPromise;
+let pgSchemaReady = false;
+
+const getPostgresPool = async () => {
+  if (!databaseUrl) {
+    return null;
+  }
+
+  if (!pgPoolPromise) {
+    pgPoolPromise = import("pg")
+      .then(({ Pool }) => new Pool({ connectionString: databaseUrl }))
+      .catch((error) => {
+        console.warn(`PostgreSQL driver unavailable, using JSON fallback: ${error.message}`);
+        return null;
+      });
+  }
+
+  return pgPoolPromise;
+};
+
+const ensurePostgres = async () => {
+  const pool = await getPostgresPool();
+
+  if (!pool) {
+    return null;
+  }
+
+  if (!pgSchemaReady) {
+    try {
+      await pool.query(await readFile(schemaFile, "utf8"));
+      pgSchemaReady = true;
+    } catch (error) {
+      console.warn(`PostgreSQL unavailable, using JSON fallback: ${error.message}`);
+      return null;
+    }
+  }
+
+  return pool;
 };
 
 const readJsonFile = async (filePath, fallback) => {
@@ -96,28 +138,161 @@ const readDatabase = async () => {
 };
 
 const readMessages = async () => {
+  const pool = await ensurePostgres();
+
+  if (pool) {
+    const result = await pool.query(
+      `SELECT id, created_at, name, contact, interest, cap_style, message, status
+       FROM messages
+       ORDER BY created_at DESC`,
+    );
+
+    return result.rows.map((row) => ({
+      id: row.id,
+      createdAt: row.created_at?.toISOString?.() || row.created_at,
+      name: row.name,
+      contact: row.contact,
+      interest: row.interest,
+      capStyle: row.cap_style,
+      message: row.message,
+      status: row.status,
+    }));
+  }
+
   const database = await readDatabase();
   return database.messages;
 };
 
 const writeMessages = async (messages) => {
+  const pool = await ensurePostgres();
+
+  if (pool) {
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+      await client.query("DELETE FROM messages");
+
+      for (const message of messages) {
+        await client.query(
+          `INSERT INTO messages (id, created_at, name, contact, interest, cap_style, message, status)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          [
+            message.id,
+            message.createdAt || new Date().toISOString(),
+            message.name,
+            message.contact,
+            message.interest || "",
+            message.capStyle || "",
+            message.message,
+            message.status || "Nuevo",
+          ],
+        );
+      }
+
+      await client.query("COMMIT");
+      return;
+    } catch (error) {
+      await client.query("ROLLBACK");
+      console.warn(`Could not write PostgreSQL messages, using JSON fallback: ${error.message}`);
+    } finally {
+      client.release();
+    }
+  }
+
   const database = await readDatabase();
   database.messages = messages;
   await writeDatabase(database);
 };
 
 const readCustomers = async () => {
+  const pool = await ensurePostgres();
+
+  if (pool) {
+    const result = await pool.query(
+      `SELECT id, name, email, salt, password_hash, created_at
+       FROM customers
+       ORDER BY created_at DESC`,
+    );
+
+    return result.rows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      salt: row.salt,
+      passwordHash: row.password_hash,
+      createdAt: row.created_at?.toISOString?.() || row.created_at,
+    }));
+  }
+
   const database = await readDatabase();
   return database.customers;
 };
 
 const writeCustomers = async (customers) => {
+  const pool = await ensurePostgres();
+
+  if (pool) {
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+      await client.query("DELETE FROM customers");
+
+      for (const customer of customers) {
+        await client.query(
+          `INSERT INTO customers (id, name, email, salt, password_hash, created_at)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [
+            customer.id,
+            customer.name,
+            customer.email,
+            customer.salt,
+            customer.passwordHash,
+            customer.createdAt || new Date().toISOString(),
+          ],
+        );
+      }
+
+      await client.query("COMMIT");
+      return;
+    } catch (error) {
+      await client.query("ROLLBACK");
+      console.warn(`Could not write PostgreSQL customers, using JSON fallback: ${error.message}`);
+    } finally {
+      client.release();
+    }
+  }
+
   const database = await readDatabase();
   database.customers = customers;
   await writeDatabase(database);
 };
 
 const readAccount = async () => {
+  const pool = await ensurePostgres();
+
+  if (pool) {
+    const result = await pool.query(
+      `SELECT email, password, two_factor_enabled, totp_secret, updated_at
+       FROM account
+       WHERE id = 1`,
+    );
+    const row = result.rows[0];
+
+    if (row) {
+      const totpSecret = cleanText(row.totp_secret, 80).replace(/\s+/g, "").toUpperCase();
+
+      return {
+        email: cleanText(row.email, 120) || defaultAccount.email,
+        password: cleanText(row.password, 120) || defaultAccount.password,
+        twoFactorEnabled: row.two_factor_enabled === true && Boolean(totpSecret),
+        totpSecret,
+        updatedAt: row.updated_at?.toISOString?.() || row.updated_at,
+      };
+    }
+  }
+
   const database = await readDatabase();
   const account = database.account || defaultAccount;
   const totpSecret = cleanText(account.totpSecret, 80).replace(/\s+/g, "").toUpperCase();
@@ -132,6 +307,30 @@ const readAccount = async () => {
 };
 
 const writeAccount = async (account) => {
+  const pool = await ensurePostgres();
+
+  if (pool) {
+    await pool.query(
+      `INSERT INTO account (id, email, password, two_factor_enabled, totp_secret, updated_at)
+       VALUES (1, $1, $2, $3, $4, $5)
+       ON CONFLICT (id)
+       DO UPDATE SET
+         email = EXCLUDED.email,
+         password = EXCLUDED.password,
+         two_factor_enabled = EXCLUDED.two_factor_enabled,
+         totp_secret = EXCLUDED.totp_secret,
+         updated_at = EXCLUDED.updated_at`,
+      [
+        account.email,
+        account.password,
+        account.twoFactorEnabled === true,
+        account.totpSecret || "",
+        account.updatedAt || new Date().toISOString(),
+      ],
+    );
+    return;
+  }
+
   const database = await readDatabase();
   database.account = account;
   await writeDatabase(database);

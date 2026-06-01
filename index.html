@@ -48,22 +48,86 @@
     </header>
 
     <main>
-      <section class="shop-view hero-store is-active" id="inicio" data-shop-view="inicio">
-        <img class="hero-store-image" src="assets/clover-caps.png" alt="Gorras Clover Golf Co. bordadas" />
-        <div class="hero-store-copy">
-          <p class="eyebrow">Golf apparel studio</p>
-          <h1>Clover Golf Co.</h1>
-          <p>
-            Gorras premium con bordado real, tonos de campo y detalles listos
-            para revisar antes de producir.
-          </p>
-          <div class="hero-actions">
-            <button class="primary-button" type="button" data-shop-link="productos" data-filter-link="todos">
-              View coleccion
-            </button>
-            <button class="secondary-button" type="button" data-shop-link="vista-360">Ver vistas 360</button>
+      <section class="shop-view home-view is-active" id="inicio" data-shop-view="inicio">
+        <div class="hero-store">
+          <img class="hero-store-image" src="assets/clover-caps.png" alt="Gorras Clover Golf Co. bordadas" />
+          <div class="hero-store-copy">
+            <p class="eyebrow">Golf apparel studio</p>
+            <h1>Clover Golf Co.</h1>
+            <p>
+              Gorras premium con bordado real, tonos de campo y detalles listos
+              para revisar antes de producir.
+            </p>
+            <div class="hero-actions">
+              <button class="primary-button" type="button" data-shop-link="productos" data-filter-link="todos">
+                View coleccion
+              </button>
+              <button class="secondary-button" type="button" data-shop-link="vista-360">Ver vistas 360</button>
+            </div>
           </div>
         </div>
+
+        <div class="home-marquee" aria-label="Highlights Clover">
+          <span>Bordado real</span>
+          <span>Vistas 360</span>
+          <span>Produccion lista</span>
+          <span>Golf lifestyle</span>
+        </div>
+
+        <section class="home-drop-section" aria-labelledby="home-drop-title">
+          <div class="home-drop-copy">
+            <p class="eyebrow">Drop inicial</p>
+            <h2 id="home-drop-title">Capsula Fairway Essentials</h2>
+            <p>
+              Una seleccion enfocada en gorras con presencia de campo:
+              crema, verde profundo, cuero y bordado con relieve.
+            </p>
+            <button class="primary-button" type="button" data-shop-link="productos" data-filter-link="todos">
+              View gorras
+            </button>
+          </div>
+          <div class="home-drop-grid" aria-label="Modelos destacados">
+            <article class="home-product-feature">
+              <img src="assets/cap-thumb-signature-leather.png?v=5" alt="Gorra Signature Leather Clover" />
+              <span>Signature Leather</span>
+            </article>
+            <article class="home-product-feature">
+              <img src="assets/cap-thumb-forest-classic.png?v=5" alt="Gorra Forest Classic Clover" />
+              <span>Forest Classic</span>
+            </article>
+            <article class="home-product-feature">
+              <img src="assets/cap-thumb-cream-fairway.png?v=5" alt="Gorra Cream Fairway Clover" />
+              <span>Cream Fairway</span>
+            </article>
+          </div>
+        </section>
+
+        <section class="home-explore-section" aria-label="Explorar Clover">
+          <button class="home-explore-tile" type="button" data-shop-link="productos" data-filter-link="todos">
+            <img src="assets/cap-thumb-stripe-course.png?v=5" alt="" aria-hidden="true" />
+            <span>Gorras</span>
+          </button>
+          <button class="home-explore-tile" type="button" data-shop-link="productos" data-filter-link="mujer">
+            <img src="assets/cap-thumb-womens-bucket.png?v=5" alt="" aria-hidden="true" />
+            <span>Linea mujer</span>
+          </button>
+          <button class="home-explore-tile field-tile" type="button" data-shop-link="campo">
+            <img src="assets/lookbook-womens-fairway-classic-embroidered.png?v=1" alt="" aria-hidden="true" />
+            <span>Campo</span>
+          </button>
+        </section>
+
+        <section class="home-craft-section" aria-labelledby="home-craft-title">
+          <div>
+            <p class="eyebrow">Hecho para verse real</p>
+            <h2 id="home-craft-title">Bordado, textura y produccion.</h2>
+          </div>
+          <div class="home-craft-steps">
+            <span>01 Logo elevado</span>
+            <span>02 Tela con textura</span>
+            <span>03 Vistas para suplidor</span>
+          </div>
+        </section>
       </section>
 
       <section class="shop-view products-section" id="productos" data-shop-view="productos" hidden>
@@ -314,63 +378,63 @@
                 <label class="cap-choice">
                   <input name="capStyle" type="radio" value="Signature Leather" required checked />
                   <span class="cap-option">
-                    <img src="assets/cap-thumb-signature-leather.png?v=3" alt="Gorra Signature Leather" />
+                    <img src="assets/cap-thumb-signature-leather.png?v=5" alt="Gorra Signature Leather" />
                     <strong>Signature Leather</strong>
                   </span>
                 </label>
                 <label class="cap-choice">
                   <input name="capStyle" type="radio" value="Forest Classic" required />
                   <span class="cap-option">
-                    <img src="assets/cap-thumb-forest-classic.png?v=3" alt="Gorra Forest Classic" />
+                    <img src="assets/cap-thumb-forest-classic.png?v=5" alt="Gorra Forest Classic" />
                     <strong>Forest Classic</strong>
                   </span>
                 </label>
                 <label class="cap-choice">
                   <input name="capStyle" type="radio" value="Stripe Course" required />
                   <span class="cap-option">
-                    <img src="assets/cap-thumb-stripe-course.png?v=3" alt="Gorra Stripe Course" />
+                    <img src="assets/cap-thumb-stripe-course.png?v=5" alt="Gorra Stripe Course" />
                     <strong>Stripe Course</strong>
                   </span>
                 </label>
                 <label class="cap-choice">
                   <input name="capStyle" type="radio" value="Cream Heritage" required />
                   <span class="cap-option">
-                    <img src="assets/cap-thumb-cream-heritage.png?v=3" alt="Gorra Cream Heritage" />
+                    <img src="assets/cap-thumb-cream-heritage.png?v=5" alt="Gorra Cream Heritage" />
                     <strong>Cream Heritage</strong>
                   </span>
                 </label>
                 <label class="cap-choice">
                   <input name="capStyle" type="radio" value="Olive Performance" required />
                   <span class="cap-option">
-                    <img src="assets/cap-thumb-olive-performance.png?v=3" alt="Gorra Olive Performance" />
+                    <img src="assets/cap-thumb-olive-performance.png?v=5" alt="Gorra Olive Performance" />
                     <strong>Olive Performance</strong>
                   </span>
                 </label>
                 <label class="cap-choice">
                   <input name="capStyle" type="radio" value="Tour Cream" required />
                   <span class="cap-option">
-                    <img src="assets/cap-thumb-tour-cream.png?v=3" alt="Gorra Tour Cream" />
+                    <img src="assets/cap-thumb-tour-cream.png?v=5" alt="Gorra Tour Cream" />
                     <strong>Tour Cream</strong>
                   </span>
                 </label>
                 <label class="cap-choice">
                   <input name="capStyle" type="radio" value="Women's Bucket Hat" required />
                   <span class="cap-option">
-                    <img src="assets/cap-thumb-womens-bucket.png?v=3" alt="Bucket hat femenino Clover" />
+                    <img src="assets/cap-thumb-womens-bucket.png?v=5" alt="Bucket hat femenino Clover" />
                     <strong>Women's Bucket Hat</strong>
                   </span>
                 </label>
                 <label class="cap-choice">
                   <input name="capStyle" type="radio" value="Jiuguva Visor" required />
                   <span class="cap-option">
-                    <img src="assets/cap-thumb-jiuguva-visor.png?v=3" alt="Visor femenino Clover" />
+                    <img src="assets/cap-thumb-jiuguva-visor.png?v=5" alt="Visor femenino Clover" />
                     <strong>Jiuguva Visor</strong>
                   </span>
                 </label>
                 <label class="cap-choice">
                   <input name="capStyle" type="radio" value="Fairway Classic" required />
                   <span class="cap-option">
-                    <img src="assets/cap-thumb-fairway-classic.png?v=3" alt="Gorra verde femenina Clover" />
+                    <img src="assets/cap-thumb-fairway-classic.png?v=5" alt="Gorra verde femenina Clover" />
                     <strong>Fairway Classic</strong>
                   </span>
                 </label>
@@ -378,7 +442,7 @@
                   <input name="capStyle" type="radio" value="Cream Fairway" required />
                   <span class="cap-option">
                     <img
-                      src="assets/cap-thumb-cream-fairway.png?v=3"
+                      src="assets/cap-thumb-cream-fairway.png?v=5"
                       alt="Gorra crema y verde femenina Clover"
                     />
                     <strong>Cream Fairway</strong>

@@ -1,0 +1,21 @@
+{
+  "name": "clover-golf-co",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.4.0",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "db:init": "node scripts/init-postgres.mjs",
+    "check": "node --check script.js && node --check server.mjs && node --check scripts/security-scan.mjs",
+    "security:scan": "node scripts/security-scan.mjs"
+  },
+  "dependencies": {
+    "pg": "8.21.0"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=11.4.0"
+  }
+}
