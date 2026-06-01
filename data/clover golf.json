@@ -1,0 +1,26 @@
+{
+  "name": "clover golf",
+  "version": 1,
+  "createdAt": "2026-06-01T00:00:00.000Z",
+  "updatedAt": "2026-06-01T00:00:00.000Z",
+  "account": {
+    "email": "prueba07@gmail.com",
+    "password": "12345678",
+    "twoFactorEnabled": true,
+    "totpSecret": "2CKU5TQ7DCSJ57AJA7FP4PL4NUBXN7I3",
+    "updatedAt": "2026-05-29T17:25:07.869Z"
+  },
+  "messages": [
+    {
+      "id": "1780069168037-37181516419148",
+      "createdAt": "2026-05-29T15:39:28.037Z",
+      "name": "Robert Cepeda",
+      "contact": "cepedarobert265@gmail.com",
+      "interest": "Saber detalles",
+      "capStyle": "Cream Fairway",
+      "message": "Quiero saber el precio de la gorra",
+      "status": "Nuevo"
+    }
+  ],
+  "customers": []
+}

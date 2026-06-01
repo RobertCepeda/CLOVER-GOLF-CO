@@ -20,6 +20,698 @@ const setStatus = (element, message, type = "neutral") => {
   element.dataset.status = type;
 };
 
+const storeProducts = [
+  {
+    id: "signature-leather",
+    name: "Signature Leather",
+    category: "gorras",
+    tags: ["cuero", "bordado", "clasica"],
+    image: "assets/cap-thumb-signature-leather.png?v=3",
+    view360: "assets/cap-360-signature-leather-production.png?v=2",
+    description: "Crema, verde bosque y parche de cuero grabado para el modelo principal.",
+  },
+  {
+    id: "forest-classic",
+    name: "Forest Classic",
+    category: "gorras",
+    tags: ["bordado", "verde", "clasica"],
+    image: "assets/cap-thumb-forest-classic.png?v=3",
+    view360: "assets/cap-360-forest-classic-production.png?v=2",
+    description: "Gorra verde completa con bordado crema, textura de tela y perfil limpio.",
+  },
+  {
+    id: "stripe-course",
+    name: "Stripe Course",
+    category: "gorras",
+    tags: ["bordado", "rayas", "retro"],
+    image: "assets/cap-thumb-stripe-course.png?v=3",
+    view360: "assets/cap-360-stripe-course-production.png?v=2",
+    description: "Rayas verticales crema y verde con presencia retro de campo.",
+  },
+  {
+    id: "cream-heritage",
+    name: "Cream Heritage",
+    category: "gorras",
+    tags: ["bordado", "crema", "clasica"],
+    image: "assets/cap-thumb-cream-heritage.png?v=3",
+    view360: "assets/cap-360-cream-heritage-production.png?v=2",
+    description: "Base crema limpia con logo Clover bordado al frente.",
+  },
+  {
+    id: "olive-performance",
+    name: "Olive Performance",
+    category: "gorras",
+    tags: ["performance", "oliva", "perforada"],
+    image: "assets/cap-thumb-olive-performance.png?v=3",
+    view360: "assets/cap-360-olive-performance-production.png?v=2",
+    description: "Oliva sobrio, textura ligera y perforaciones laterales.",
+  },
+  {
+    id: "tour-cream",
+    name: "Tour Cream",
+    category: "gorras",
+    tags: ["bordado", "crema", "verde"],
+    image: "assets/cap-thumb-tour-cream.png?v=3",
+    view360: "assets/cap-360-tour-cream-production.png?v=2",
+    description: "Crema con visera verde y logo centrado sin cordon frontal.",
+  },
+  {
+    id: "womens-bucket",
+    name: "Women's Bucket Hat",
+    category: "mujer",
+    tags: ["mujer", "bucket", "bordado"],
+    image: "assets/cap-thumb-womens-bucket.png?v=3",
+    view360: "assets/cap-360-womens-bucket-production.png?v=2",
+    description: "Bucket hat crema con textura sutil y logo Clover bordado al frente.",
+  },
+  {
+    id: "jiuguva-visor",
+    name: "Jiuguva Visor",
+    category: "mujer",
+    tags: ["mujer", "visor", "performance"],
+    image: "assets/cap-thumb-jiuguva-visor.png?v=3",
+    view360: "assets/cap-360-jiuguva-visor-production.png?v=4",
+    description: "Visor blanco con banda respirable y logo bordado centrado arriba.",
+  },
+  {
+    id: "fairway-classic",
+    name: "Fairway Classic",
+    category: "mujer",
+    tags: ["mujer", "bordado", "verde"],
+    image: "assets/cap-thumb-fairway-classic.png?v=3",
+    view360: "assets/cap-360-fairway-classic-production.png?v=2",
+    description: "Gorra femenina en verde profundo con logo Clover crema bordado.",
+  },
+  {
+    id: "cream-fairway",
+    name: "Cream Fairway",
+    category: "mujer",
+    tags: ["mujer", "crema", "verde"],
+    image: "assets/cap-thumb-cream-fairway.png?v=3",
+    view360: "assets/cap-360-cream-fairway-production.png?v=2",
+    description: "Base crema con visera verde para un look femenino de campo.",
+  },
+];
+
+const customerKey = "cloverCustomer";
+const cartKey = "cloverCart";
+const favoritesKey = "cloverFavorites";
+const shopViews = document.querySelectorAll("[data-shop-view]");
+const shopLinks = document.querySelectorAll("[data-shop-link]");
+const navLinks = document.querySelectorAll(".main-nav [data-shop-link]");
+const productGrid = document.querySelector("[data-product-grid]");
+const productSearch = document.querySelector("[data-product-search]");
+const productFilters = document.querySelectorAll("[data-product-filter]");
+const cartDrawer = document.querySelector("[data-cart-drawer]");
+const accountDrawer = document.querySelector("[data-account-drawer]");
+const drawerBackdrop = document.querySelector("[data-drawer-backdrop]");
+const cartList = document.querySelector("[data-cart-list]");
+const favoriteList = document.querySelector("[data-favorite-list]");
+const cartSelectionNote = document.querySelector("[data-cart-selection-note]");
+const cartCount = document.querySelector("[data-cart-count]");
+const favoriteCount = document.querySelector("[data-favorite-count]");
+const checkoutSummary = document.querySelector("[data-checkout-summary]");
+const customerForm = document.querySelector("[data-customer-auth]");
+const customerStatus = document.querySelector("[data-customer-status]");
+const customerPanel = document.querySelector("[data-customer-panel]");
+const productModal = document.querySelector("[data-product-modal]");
+const productModalImage = document.querySelector("[data-product-modal-image]");
+const productModalTitle = document.querySelector("[data-product-modal-title]");
+const productModalTag = document.querySelector("[data-product-modal-tag]");
+const productModalText = document.querySelector("[data-product-modal-text]");
+const productModalAdd = document.querySelector("[data-product-modal-add]");
+const productModal360 = document.querySelector("[data-product-modal-360]");
+const shopViewAliases = {
+  marca: "inicio",
+  catalogo: "productos",
+  mujer: "productos",
+  contacto: "pedidos",
+  lookbook: "campo",
+};
+let activeProductFilter = "todos";
+let activeProductId = "";
+let activeShopView = "inicio";
+
+const readStorage = (key, fallback) => {
+  try {
+    return JSON.parse(localStorage.getItem(key)) ?? fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const writeStorage = (key, value) => {
+  localStorage.setItem(key, JSON.stringify(value));
+};
+
+let customer = readStorage(customerKey, null);
+let cart = readStorage(cartKey, []);
+let favorites = new Set(readStorage(favoritesKey, []));
+
+const getProductById = (id) => storeProducts.find((product) => product.id === id);
+
+const getCartCount = () => cart.reduce((total, item) => total + item.qty, 0);
+
+const getCartSummaryText = () =>
+  cart
+    .map((item) => {
+      const product = getProductById(item.id);
+      return product ? `${item.qty} x ${product.name}` : "";
+    })
+    .filter(Boolean)
+    .join("\n");
+
+const updateActionCounts = () => {
+  const nextCartCount = getCartCount();
+  const nextFavoriteCount = favorites.size;
+
+  if (cartCount) {
+    cartCount.textContent = String(nextCartCount);
+    cartCount.hidden = nextCartCount === 0;
+  }
+
+  if (favoriteCount) {
+    favoriteCount.textContent = String(nextFavoriteCount);
+    favoriteCount.hidden = nextFavoriteCount === 0;
+  }
+};
+
+const getActiveProductNavFilter = () => (activeProductFilter === "mujer" ? "mujer" : "todos");
+
+const updateActiveNavLinks = (nextView = activeShopView) => {
+  navLinks.forEach((link) => {
+    const linkFilter = link.dataset.filterLink || "";
+    const isActive =
+      nextView === "productos"
+        ? link.dataset.shopLink === "productos" && linkFilter === getActiveProductNavFilter()
+        : link.dataset.shopLink === nextView && !linkFilter;
+
+    link.classList.toggle("is-active", isActive);
+    link.toggleAttribute("aria-current", isActive);
+  });
+};
+
+const setProductFilter = (filter) => {
+  activeProductFilter = filter || "todos";
+
+  productFilters.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.productFilter === activeProductFilter);
+  });
+
+  renderProducts();
+  updateActiveNavLinks();
+};
+
+const getFilteredProducts = () => {
+  const searchValue = productSearch?.value.trim().toLowerCase() || "";
+
+  return storeProducts.filter((product) => {
+    const matchesFilter =
+      activeProductFilter === "todos" ||
+      product.category === activeProductFilter ||
+      product.tags.includes(activeProductFilter);
+    const searchHaystack = `${product.name} ${product.category} ${product.tags.join(" ")} ${
+      product.description
+    }`.toLowerCase();
+
+    return matchesFilter && (!searchValue || searchHaystack.includes(searchValue));
+  });
+};
+
+const renderProducts = () => {
+  if (!productGrid) {
+    return;
+  }
+
+  const products = getFilteredProducts();
+
+  if (!products.length) {
+    productGrid.innerHTML = `<p class="empty-products">No encontramos gorras con ese filtro.</p>`;
+    return;
+  }
+
+  productGrid.innerHTML = products
+    .map((product) => {
+      const isFavorite = favorites.has(product.id);
+
+      return `
+        <article class="store-product-card">
+          <button
+            class="favorite-toggle ${isFavorite ? "is-active" : ""}"
+            type="button"
+            aria-label="${isFavorite ? "Quitar de favoritos" : "Guardar en favoritos"}"
+            data-toggle-favorite="${product.id}"
+          >
+            ${isFavorite ? "&hearts;" : "&#9825;"}
+          </button>
+          <button class="product-image-button" type="button" data-open-product="${product.id}">
+            <img src="${product.image}" alt="Gorra ${product.name} Clover Golf Co." />
+          </button>
+          <div class="store-product-info">
+            <span>${product.category === "mujer" ? "Linea femenina" : "Clover Golf Co."}</span>
+            <h3>${product.name}</h3>
+            <p>${product.description}</p>
+            <div class="store-product-actions">
+              <button class="primary-button" type="button" data-open-product="${product.id}">
+                View
+              </button>
+            </div>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+};
+
+const saveCart = () => {
+  cart = cart.filter((item) => item.qty > 0 && getProductById(item.id));
+  writeStorage(cartKey, cart);
+  updateActionCounts();
+  renderCart();
+  renderCheckoutSummary();
+};
+
+const addToCart = (productId) => {
+  const product = getProductById(productId);
+
+  if (!product) {
+    return;
+  }
+
+  const existingItem = cart.find((item) => item.id === productId);
+
+  if (existingItem) {
+    existingItem.qty += 1;
+  } else {
+    cart.push({ id: productId, qty: 1 });
+  }
+
+  saveCart();
+};
+
+const updateCartItem = (productId, delta) => {
+  const item = cart.find((cartItem) => cartItem.id === productId);
+
+  if (!item) {
+    return;
+  }
+
+  item.qty += delta;
+  saveCart();
+};
+
+const removeCartItem = (productId) => {
+  cart = cart.filter((item) => item.id !== productId);
+  saveCart();
+};
+
+const renderCart = () => {
+  if (!cartList) {
+    return;
+  }
+
+  if (cartSelectionNote) {
+    const count = getCartCount();
+    cartSelectionNote.textContent = count
+      ? `${count} estilo${count === 1 ? "" : "s"} guardado${count === 1 ? "" : "s"} para revisar.`
+      : "Guarda los modelos que quieres revisar. Los detalles se confirman contigo antes de producir.";
+  }
+
+  if (!cart.length) {
+    cartList.innerHTML = `<p class="drawer-empty">Tu seleccion esta vacia.</p>`;
+    return;
+  }
+
+  cartList.innerHTML = cart
+    .map((item) => {
+      const product = getProductById(item.id);
+
+      if (!product) {
+        return "";
+      }
+
+      return `
+        <article class="drawer-product">
+          <img src="${product.image}" alt="${product.name}" />
+          <div>
+            <strong>${product.name}</strong>
+            <span>Listo para revisar</span>
+            <div class="qty-controls">
+              <button type="button" data-cart-minus="${product.id}">-</button>
+              <span>${item.qty}</span>
+              <button type="button" data-cart-plus="${product.id}">+</button>
+              <button type="button" data-cart-remove="${product.id}">Quitar</button>
+            </div>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+};
+
+const renderFavorites = () => {
+  if (!favoriteList) {
+    return;
+  }
+
+  const favoriteProducts = storeProducts.filter((product) => favorites.has(product.id));
+
+  if (!favoriteProducts.length) {
+    favoriteList.innerHTML = `<p class="drawer-empty">Aun no tienes favoritos guardados.</p>`;
+    return;
+  }
+
+  favoriteList.innerHTML = favoriteProducts
+    .map(
+      (product) => `
+        <article class="drawer-product">
+          <img src="${product.image}" alt="${product.name}" />
+          <div>
+            <strong>${product.name}</strong>
+            <span>Favorito guardado</span>
+            <button class="secondary-button" type="button" data-add-cart="${product.id}">
+              Guardar seleccion
+            </button>
+          </div>
+        </article>
+      `,
+    )
+    .join("");
+};
+
+const toggleFavorite = (productId) => {
+  if (favorites.has(productId)) {
+    favorites.delete(productId);
+  } else {
+    favorites.add(productId);
+  }
+
+  writeStorage(favoritesKey, [...favorites]);
+  updateActionCounts();
+  renderProducts();
+  renderFavorites();
+};
+
+const renderCustomer = () => {
+  if (!customerPanel) {
+    return;
+  }
+
+  if (!customer) {
+    customerPanel.hidden = true;
+    return;
+  }
+
+  customerPanel.hidden = false;
+  customerPanel.innerHTML = `
+    <span>Sesion activa</span>
+    <strong>${customer.name}</strong>
+    <p>${customer.email}</p>
+    <button class="secondary-button" type="button" data-logout-customer>Cerrar sesion</button>
+  `;
+};
+
+const closeDrawers = () => {
+  cartDrawer?.setAttribute("hidden", "");
+  accountDrawer?.setAttribute("hidden", "");
+  drawerBackdrop?.setAttribute("hidden", "");
+  document.body.classList.remove("drawer-open");
+};
+
+const openDrawer = (drawer) => {
+  closeDrawers();
+  drawer?.removeAttribute("hidden");
+  drawerBackdrop?.removeAttribute("hidden");
+  document.body.classList.add("drawer-open");
+};
+
+const renderCheckoutSummary = () => {
+  if (!checkoutSummary) {
+    return;
+  }
+
+  const summary = getCartSummaryText();
+
+  if (!summary) {
+    checkoutSummary.hidden = true;
+    checkoutSummary.innerHTML = "";
+    return;
+  }
+
+  checkoutSummary.hidden = false;
+  checkoutSummary.innerHTML = `
+    <span>Seleccion actual</span>
+    <pre>${summary}</pre>
+  `;
+};
+
+const resolveShopView = (viewName) => shopViewAliases[viewName] || viewName || "inicio";
+
+const showView = (viewName, options = {}) => {
+  const requestedView = resolveShopView(viewName);
+  const hasView = [...shopViews].some((view) => view.dataset.shopView === requestedView);
+  const nextView = hasView ? requestedView : "inicio";
+  activeShopView = nextView;
+
+  shopViews.forEach((view) => {
+    const isActive = view.dataset.shopView === nextView;
+    view.hidden = !isActive;
+    view.classList.toggle("is-active", isActive);
+  });
+
+  updateActiveNavLinks(nextView);
+
+  if (!options.skipHash && window.location.hash !== `#${nextView}`) {
+    history.pushState(null, "", `#${nextView}`);
+  }
+
+  if (!options.skipScroll) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+};
+
+const openProductModal = (productId) => {
+  const product = getProductById(productId);
+
+  if (!product || !productModal) {
+    return;
+  }
+
+  activeProductId = product.id;
+  productModalImage.src = product.view360;
+  productModalImage.alt = `Vista 360 de ${product.name}`;
+  productModalTitle.textContent = product.name;
+  productModalTag.textContent = product.category === "mujer" ? "Linea femenina" : "Gorra Clover";
+  productModalText.textContent = product.description;
+  productModal.hidden = false;
+  document.body.classList.add("drawer-open");
+};
+
+const closeProductModal = () => {
+  productModal?.setAttribute("hidden", "");
+  document.body.classList.remove("drawer-open");
+};
+
+shopLinks.forEach((link) => {
+  link.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    if (link.dataset.filterLink) {
+      setProductFilter(link.dataset.filterLink);
+    }
+
+    showView(link.dataset.shopLink);
+  });
+});
+
+window.addEventListener("popstate", () => {
+  showView(window.location.hash.replace("#", "") || "inicio", { skipHash: true });
+});
+
+productFilters.forEach((button) => {
+  button.addEventListener("click", () => setProductFilter(button.dataset.productFilter));
+});
+
+productSearch?.addEventListener("input", renderProducts);
+
+document.querySelectorAll("[data-open-search]").forEach((button) => {
+  button.addEventListener("click", () => {
+    showView("productos");
+    productSearch?.focus();
+  });
+});
+
+document.querySelectorAll("[data-open-cart]").forEach((button) => {
+  button.addEventListener("click", () => openDrawer(cartDrawer));
+});
+
+document.querySelectorAll("[data-open-account], [data-open-favorites]").forEach((button) => {
+  button.addEventListener("click", () => {
+    renderFavorites();
+    renderCustomer();
+    openDrawer(accountDrawer);
+  });
+});
+
+document.querySelectorAll("[data-close-drawer]").forEach((button) => {
+  button.addEventListener("click", closeDrawers);
+});
+
+drawerBackdrop?.addEventListener("click", closeDrawers);
+
+productGrid?.addEventListener("click", (event) => {
+  const favoriteButton = event.target.closest("[data-toggle-favorite]");
+  const addButton = event.target.closest("[data-add-cart]");
+  const openButton = event.target.closest("[data-open-product]");
+
+  if (favoriteButton) {
+    toggleFavorite(favoriteButton.dataset.toggleFavorite);
+    return;
+  }
+
+  if (addButton) {
+    addToCart(addButton.dataset.addCart);
+    openDrawer(cartDrawer);
+    return;
+  }
+
+  if (openButton) {
+    openProductModal(openButton.dataset.openProduct);
+  }
+});
+
+cartList?.addEventListener("click", (event) => {
+  const minusButton = event.target.closest("[data-cart-minus]");
+  const plusButton = event.target.closest("[data-cart-plus]");
+  const removeButton = event.target.closest("[data-cart-remove]");
+
+  if (minusButton) {
+    updateCartItem(minusButton.dataset.cartMinus, -1);
+  }
+
+  if (plusButton) {
+    updateCartItem(plusButton.dataset.cartPlus, 1);
+  }
+
+  if (removeButton) {
+    removeCartItem(removeButton.dataset.cartRemove);
+  }
+});
+
+favoriteList?.addEventListener("click", (event) => {
+  const addButton = event.target.closest("[data-add-cart]");
+
+  if (addButton) {
+    addToCart(addButton.dataset.addCart);
+    openDrawer(cartDrawer);
+  }
+});
+
+customerForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const submitButton = customerForm.querySelector("button[type='submit']");
+  const formData = new FormData(customerForm);
+  const name = String(formData.get("name") || "").trim();
+  const email = String(formData.get("email") || "").trim().toLowerCase();
+  const password = String(formData.get("password") || "");
+
+  if (!name || !email.includes("@")) {
+    setStatus(customerStatus, "Completa nombre y correo valido.", "error");
+    return;
+  }
+
+  submitButton.disabled = true;
+  setStatus(customerStatus, "Verificando cuenta...", "neutral");
+
+  try {
+    const response = await fetch("/api/customers", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, email, password }),
+    });
+    const payload = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(payload.error || "No se pudo abrir la cuenta.");
+    }
+
+    customer = payload;
+    writeStorage(customerKey, customer);
+    customerForm.reset();
+    renderCustomer();
+    setStatus(customerStatus, "Cuenta lista. Tus datos quedaron guardados.", "success");
+  } catch (error) {
+    setStatus(customerStatus, error.message || "No se pudo crear o entrar a la cuenta.", "error");
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+
+customerPanel?.addEventListener("click", (event) => {
+  if (!event.target.closest("[data-logout-customer]")) {
+    return;
+  }
+
+  customer = null;
+  localStorage.removeItem(customerKey);
+  renderCustomer();
+  setStatus(customerStatus, "Sesion cerrada.", "neutral");
+});
+
+document.querySelector("[data-checkout-cart]")?.addEventListener("click", () => {
+  closeDrawers();
+  showView("pedidos");
+  renderCheckoutSummary();
+});
+
+document.querySelector("[data-close-product-modal]")?.addEventListener("click", closeProductModal);
+
+productModal?.addEventListener("click", (event) => {
+  if (event.target === productModal) {
+    closeProductModal();
+  }
+});
+
+productModalAdd?.addEventListener("click", () => {
+  addToCart(activeProductId);
+  closeProductModal();
+  openDrawer(cartDrawer);
+});
+
+productModal360?.addEventListener("click", () => {
+  const product = getProductById(activeProductId);
+
+  closeProductModal();
+  showView("vista-360");
+
+  const matchingChoice = [...document.querySelectorAll("[data-cap-360-choice]")].find(
+    (choice) => choice.dataset.name === product?.name,
+  );
+
+  matchingChoice?.click();
+});
+
+const initialHash = window.location.hash.replace("#", "");
+
+if (initialHash === "mujer") {
+  activeProductFilter = "mujer";
+}
+
+if (initialHash === "catalogo") {
+  activeProductFilter = "todos";
+}
+
+setProductFilter(activeProductFilter);
+renderCart();
+renderFavorites();
+renderCustomer();
+renderCheckoutSummary();
+updateActionCounts();
+showView(initialHash || "inicio", { skipHash: true, skipScroll: true });
+
 const messageForm = document.querySelector("[data-message-form]");
 
 if (messageForm) {
@@ -31,6 +723,12 @@ if (messageForm) {
     const submitButton = messageForm.querySelector("button[type='submit']");
     const formData = new FormData(messageForm);
     const payload = Object.fromEntries(formData.entries());
+    const cartSummaryText = getCartSummaryText();
+
+    if (cartSummaryText) {
+      payload.interest = "Seleccion de estilos";
+      payload.message = `${payload.message}\n\nSeleccion:\n${cartSummaryText}`;
+    }
 
     submitButton.disabled = true;
     setStatus(messageStatus, "Enviando mensaje...", "neutral");
@@ -49,6 +747,8 @@ if (messageForm) {
       }
 
       messageForm.reset();
+      cart = [];
+      saveCart();
       setStatus(
         messageStatus,
         "Mensaje recibido. Clover te respondera por el contacto que dejaste.",

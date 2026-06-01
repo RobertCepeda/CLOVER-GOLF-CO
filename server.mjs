@@ -6,8 +6,10 @@ import { dirname, extname, join, normalize } from "node:path";
 const root = process.cwd();
 const port = 5173;
 const host = "127.0.0.1";
+const databaseFile = join(root, "data", "clover golf.json");
 const messagesFile = join(root, "data", "messages.json");
 const accountFile = join(root, "data", "account.json");
+const customersFile = join(root, "data", "customers.json");
 const defaultAccount = {
   email: "prueba07@gmail.com",
   password: "12345678",
@@ -33,41 +35,106 @@ const sendJson = (response, statusCode, payload) => {
   response.end(JSON.stringify(payload));
 };
 
-const readMessages = async () => {
+const readJsonFile = async (filePath, fallback) => {
   try {
-    const file = await readFile(messagesFile, "utf8");
+    const file = await readFile(filePath, "utf8");
     return JSON.parse(file);
   } catch {
-    return [];
+    return fallback;
   }
+};
+
+const writeDatabase = async (database) => {
+  await mkdir(dirname(databaseFile), { recursive: true });
+  await writeFile(
+    databaseFile,
+    JSON.stringify(
+      {
+        name: "clover golf",
+        version: 1,
+        createdAt: database.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        account: database.account || defaultAccount,
+        messages: Array.isArray(database.messages) ? database.messages : [],
+        customers: Array.isArray(database.customers) ? database.customers : [],
+      },
+      null,
+      2,
+    ),
+  );
+};
+
+const readDatabase = async () => {
+  const database = await readJsonFile(databaseFile, null);
+
+  if (database && typeof database === "object") {
+    return {
+      name: "clover golf",
+      version: 1,
+      createdAt: cleanText(database.createdAt, 80) || new Date().toISOString(),
+      updatedAt: cleanText(database.updatedAt, 80),
+      account: database.account || defaultAccount,
+      messages: Array.isArray(database.messages) ? database.messages : [],
+      customers: Array.isArray(database.customers) ? database.customers : [],
+    };
+  }
+
+  const legacyMessages = await readJsonFile(messagesFile, []);
+  const legacyCustomers = await readJsonFile(customersFile, []);
+  const legacyAccount = await readJsonFile(accountFile, defaultAccount);
+  const nextDatabase = {
+    name: "clover golf",
+    version: 1,
+    createdAt: new Date().toISOString(),
+    account: legacyAccount || defaultAccount,
+    messages: Array.isArray(legacyMessages) ? legacyMessages : [],
+    customers: Array.isArray(legacyCustomers) ? legacyCustomers : [],
+  };
+
+  await writeDatabase(nextDatabase);
+  return nextDatabase;
+};
+
+const readMessages = async () => {
+  const database = await readDatabase();
+  return database.messages;
 };
 
 const writeMessages = async (messages) => {
-  await mkdir(dirname(messagesFile), { recursive: true });
-  await writeFile(messagesFile, JSON.stringify(messages, null, 2));
+  const database = await readDatabase();
+  database.messages = messages;
+  await writeDatabase(database);
+};
+
+const readCustomers = async () => {
+  const database = await readDatabase();
+  return database.customers;
+};
+
+const writeCustomers = async (customers) => {
+  const database = await readDatabase();
+  database.customers = customers;
+  await writeDatabase(database);
 };
 
 const readAccount = async () => {
-  try {
-    const file = await readFile(accountFile, "utf8");
-    const account = JSON.parse(file);
-    const totpSecret = cleanText(account.totpSecret, 80).replace(/\s+/g, "").toUpperCase();
+  const database = await readDatabase();
+  const account = database.account || defaultAccount;
+  const totpSecret = cleanText(account.totpSecret, 80).replace(/\s+/g, "").toUpperCase();
 
-    return {
-      email: cleanText(account.email, 120) || defaultAccount.email,
-      password: cleanText(account.password, 120) || defaultAccount.password,
-      twoFactorEnabled: account.twoFactorEnabled === true && Boolean(totpSecret),
-      totpSecret,
-      updatedAt: cleanText(account.updatedAt, 80),
-    };
-  } catch {
-    return defaultAccount;
-  }
+  return {
+    email: cleanText(account.email, 120) || defaultAccount.email,
+    password: cleanText(account.password, 120) || defaultAccount.password,
+    twoFactorEnabled: account.twoFactorEnabled === true && Boolean(totpSecret),
+    totpSecret,
+    updatedAt: cleanText(account.updatedAt, 80),
+  };
 };
 
 const writeAccount = async (account) => {
-  await mkdir(dirname(accountFile), { recursive: true });
-  await writeFile(accountFile, JSON.stringify(account, null, 2));
+  const database = await readDatabase();
+  database.account = account;
+  await writeDatabase(database);
 };
 
 const readRequestJson = async (request) => {
@@ -90,6 +157,9 @@ const cleanText = (value, maxLength) =>
     .slice(0, maxLength);
 
 const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+const hashCustomerPassword = (password, salt) =>
+  createHmac("sha256", salt).update(password).digest("hex");
 
 const generateBase32Secret = () => {
   const bytes = randomBytes(20);
@@ -215,6 +285,63 @@ const resolveRoute = (cleanPath) => {
 createServer(async (request, response) => {
   const url = new URL(request.url, `http://${host}:${port}`);
   const cleanPath = normalize(decodeURIComponent(url.pathname)).replace(/^(\.\.[/\\])+/, "");
+
+  if (url.pathname === "/api/customers" && request.method === "POST") {
+    try {
+      const payload = await readRequestJson(request);
+      const name = cleanText(payload.name, 80);
+      const email = cleanText(payload.email, 120).toLowerCase();
+      const password = cleanText(payload.password, 120);
+
+      if (!name || !isValidEmail(email) || password.length < 6) {
+        sendJson(response, 400, { error: "Completa nombre, correo y password de al menos 6 caracteres." });
+        return;
+      }
+
+      const customers = await readCustomers();
+      const existingCustomer = customers.find((customer) => customer.email === email);
+
+      if (existingCustomer) {
+        const passwordHash = hashCustomerPassword(password, existingCustomer.salt);
+
+        if (passwordHash !== existingCustomer.passwordHash) {
+          sendJson(response, 409, { error: "Esa cuenta ya existe. Revisa el password." });
+          return;
+        }
+
+        sendJson(response, 200, {
+          id: existingCustomer.id,
+          name: existingCustomer.name,
+          email: existingCustomer.email,
+          createdAt: existingCustomer.createdAt,
+        });
+        return;
+      }
+
+      const salt = randomBytes(16).toString("hex");
+      const nextCustomer = {
+        id: `${Date.now()}-${randomBytes(4).toString("hex")}`,
+        name,
+        email,
+        salt,
+        passwordHash: hashCustomerPassword(password, salt),
+        createdAt: new Date().toISOString(),
+      };
+
+      customers.unshift(nextCustomer);
+      await writeCustomers(customers.slice(0, 1000));
+      sendJson(response, 201, {
+        id: nextCustomer.id,
+        name: nextCustomer.name,
+        email: nextCustomer.email,
+        createdAt: nextCustomer.createdAt,
+      });
+    } catch {
+      sendJson(response, 400, { error: "No se pudo crear o abrir la cuenta." });
+    }
+
+    return;
+  }
 
   if (url.pathname === "/api/login" && request.method === "POST") {
     try {

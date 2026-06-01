@@ -15,157 +15,81 @@
     />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
+  <body class="store-page">
     <header class="site-header">
-      <a class="brand-lockup" href="#" aria-label="Clover Golf Co. inicio">
+      <a class="brand-lockup" href="#inicio" aria-label="Clover Golf Co. inicio" data-shop-link="inicio">
         <img class="nav-logo" src="assets/clover-logo-small.png" alt="" aria-hidden="true" />
         <span>Clover Golf Co.</span>
       </a>
       <nav class="main-nav" aria-label="Navegacion principal">
-        <a href="#marca">Marca</a>
-        <a href="#productos">Productos</a>
-        <a href="#catalogo">Catalogo</a>
-        <a href="#mujer">Mujer</a>
-        <a href="#vista-360">360</a>
-        <a href="#lookbook">En Campo</a>
-        <a href="#contacto">Pedidos</a>
+        <a class="is-active" href="#inicio" data-shop-link="inicio">Inicio</a>
+        <a href="#productos" data-shop-link="productos" data-filter-link="todos">Gorras</a>
+        <a href="#productos" data-shop-link="productos" data-filter-link="mujer">Mujer</a>
+        <a href="#vista-360" data-shop-link="vista-360">Vistas 360</a>
+        <a href="#campo" data-shop-link="campo">Campo</a>
+        <a href="#pedidos" data-shop-link="pedidos">Pedidos</a>
       </nav>
-      <a class="header-action" href="#contacto">Pedir gorra</a>
+      <div class="store-actions" aria-label="Herramientas de tienda">
+        <button class="icon-button" type="button" aria-label="Buscar gorras" data-open-search>
+          <span class="store-icon store-icon-search" aria-hidden="true"></span>
+        </button>
+        <button class="icon-button" type="button" aria-label="Favoritos" data-open-favorites>
+          <span class="store-icon store-icon-heart" aria-hidden="true"></span>
+          <span class="action-count" data-favorite-count hidden>0</span>
+        </button>
+        <button class="icon-button" type="button" aria-label="Cuenta" data-open-account>
+          <span class="store-icon store-icon-user" aria-hidden="true"></span>
+        </button>
+        <button class="icon-button" type="button" aria-label="Seleccion de estilos" data-open-cart>
+          <span class="store-icon store-icon-cart" aria-hidden="true"></span>
+          <span class="action-count" data-cart-count hidden>0</span>
+        </button>
+      </div>
     </header>
 
     <main>
-      <section class="hero-section" id="marca">
-        <div class="hero-copy">
+      <section class="shop-view hero-store is-active" id="inicio" data-shop-view="inicio">
+        <img class="hero-store-image" src="assets/clover-caps.png" alt="Gorras Clover Golf Co. bordadas" />
+        <div class="hero-store-copy">
           <p class="eyebrow">Golf apparel studio</p>
           <h1>Clover Golf Co.</h1>
-          <p class="hero-text">
-            Una identidad limpia, clasica y deportiva, construida sobre verde
-            profundo, oliva y crema vintage.
+          <p>
+            Gorras premium con bordado real, tonos de campo y detalles listos
+            para revisar antes de producir.
           </p>
           <div class="hero-actions">
-            <a class="primary-button" href="#productos">Ver gorras</a>
-            <a class="secondary-button" href="#contacto">Contactar</a>
-          </div>
-        </div>
-
-        <div class="hero-brand-panel" aria-label="Logo principal de Clover Golf Co.">
-          <div class="logo-badge">
-            <img src="assets/clover-logo-transparent.png" alt="Logo Clover Golf Co." />
+            <button class="primary-button" type="button" data-shop-link="productos" data-filter-link="todos">
+              View coleccion
+            </button>
+            <button class="secondary-button" type="button" data-shop-link="vista-360">Ver vistas 360</button>
           </div>
         </div>
       </section>
 
-      <section class="product-base" id="productos">
-        <div class="product-copy">
-          <p class="eyebrow">Coleccion inicial</p>
-          <h2>Gorras premium con aire vintage</h2>
-          <p>
-            Diseños de golf con textura premium, verde bosque, crema clasico y
-            detalles en cuero para un look limpio dentro y fuera del campo.
-          </p>
-        </div>
-        <div class="cap-showcase" aria-label="Gorras reales Clover Golf Co.">
-          <img
-            src="assets/clover-caps.png"
-            alt="Cuatro gorras reales Clover Golf Co. en crema, verde, cuero y rayas"
-          />
-        </div>
-      </section>
-
-      <section class="catalog-section" id="catalogo">
-        <div class="section-heading">
+      <section class="shop-view products-section" id="productos" data-shop-view="productos" hidden>
+        <div class="section-heading products-heading">
           <div>
-            <p class="eyebrow">Catalogo expandido</p>
-            <h2>Mas estilos Clover</h2>
+            <p class="eyebrow">Tienda Clover</p>
+            <h2>Gorras Clover</h2>
           </div>
+          <label class="product-search">
+            <span>Buscar</span>
+            <input data-product-search type="search" placeholder="Buscar gorra, color o linea" />
+          </label>
         </div>
-        <figure class="catalog-board">
-          <img
-            src="assets/clover-catalog-board.png"
-            alt="Catalogo de ocho estilos de gorras Clover Golf Co."
-          />
-        </figure>
-        <div class="style-grid" aria-label="Estilos de gorras Clover Golf Co.">
-          <article class="style-card">
-            <span>01</span>
-            <h3>Signature Leather</h3>
-            <p>Crema, verde bosque y parche de cuero para el modelo principal.</p>
-          </article>
-          <article class="style-card">
-            <span>02</span>
-            <h3>Forest Classic</h3>
-            <p>Gorra verde completa con bordado crema discreto.</p>
-          </article>
-          <article class="style-card">
-            <span>03</span>
-            <h3>Stripe Course</h3>
-            <p>Rayas verticales crema y verde con presencia retro de campo.</p>
-          </article>
-          <article class="style-card">
-            <span>04</span>
-            <h3>Cream Heritage</h3>
-            <p>Base crema limpia con logo bordado para uso diario.</p>
-          </article>
-          <article class="style-card">
-            <span>05</span>
-            <h3>Olive Performance</h3>
-            <p>Oliva sobrio, textura ligera y perforaciones laterales.</p>
-          </article>
-          <article class="style-card">
-            <span>06</span>
-            <h3>Tour Cream</h3>
-            <p>Crema con visera verde y logo centrado sin cordon frontal.</p>
-          </article>
+
+        <div class="product-toolbar" aria-label="Filtros de gorras">
+          <button class="filter-chip is-active" type="button" data-product-filter="todos">Todo</button>
+          <button class="filter-chip" type="button" data-product-filter="gorras">Clasicas</button>
+          <button class="filter-chip" type="button" data-product-filter="mujer">Mujer</button>
+          <button class="filter-chip" type="button" data-product-filter="cuero">Cuero</button>
+          <button class="filter-chip" type="button" data-product-filter="performance">Performance</button>
         </div>
+
+        <div class="store-product-grid" data-product-grid aria-live="polite"></div>
       </section>
 
-      <section class="womens-section" id="mujer">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">Linea femenina</p>
-            <h2>Modelos para golf femenino</h2>
-          </div>
-        </div>
-        <div class="womens-grid" aria-label="Modelos femeninos Clover Golf Co.">
-          <article class="womens-card">
-            <img src="assets/cap-thumb-womens-bucket.png?v=3" alt="Bucket hat femenino Clover Golf Co." />
-            <div>
-              <span>07</span>
-              <h3>Women's Bucket Hat</h3>
-              <p>Bucket hat crema con textura sutil y logo Clover al frente.</p>
-            </div>
-          </article>
-          <article class="womens-card">
-            <img src="assets/cap-thumb-jiuguva-visor.png?v=3" alt="Visor femenino Clover Golf Co." />
-            <div>
-              <span>08</span>
-              <h3>Jiuguva Visor</h3>
-              <p>Visor blanco con banda respirable para juego ligero y limpio.</p>
-            </div>
-          </article>
-          <article class="womens-card">
-            <img src="assets/cap-thumb-fairway-classic.png?v=3" alt="Gorra verde femenina Clover Golf Co." />
-            <div>
-              <span>09</span>
-              <h3>Fairway Classic</h3>
-              <p>Gorra clasica femenina en verde profundo con logo Clover crema.</p>
-            </div>
-          </article>
-          <article class="womens-card">
-            <img
-              src="assets/cap-thumb-cream-fairway.png?v=3"
-              alt="Gorra crema y verde femenina Clover Golf Co."
-            />
-            <div>
-              <span>10</span>
-              <h3>Cream Fairway</h3>
-              <p>Base crema con visera verde para un look femenino de campo.</p>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="cap-360-section" id="vista-360">
+      <section class="shop-view cap-360-section" id="vista-360" data-shop-view="vista-360" hidden>
         <div class="cap-360-copy">
           <p class="eyebrow">Vista 360</p>
           <h2>Gorras por todos los lados</h2>
@@ -286,8 +210,9 @@
         </figure>
       </section>
 
-      <section class="lookbook-section" id="lookbook">
+      <section class="shop-view lookbook-section" id="campo" data-shop-view="campo" hidden>
         <div class="lookbook-copy">
+          <p class="eyebrow">En campo</p>
           <h2>Clover en campo</h2>
           <p>
             Escenas completas de la coleccion con gorras, ropa y equipo de golf
@@ -354,15 +279,15 @@
         </div>
       </section>
 
-      <section class="message-section" id="contacto">
+      <section class="shop-view message-section" id="pedidos" data-shop-view="pedidos" hidden>
         <div class="message-copy">
-          <p class="eyebrow">Atencion personalizada</p>
-          <h2>Pregunta por tu gorra Clover</h2>
+          <p class="eyebrow">Pedidos</p>
+          <h2>Arma tu seleccion Clover</h2>
           <p>
-            Solicita disponibilidad, detalles de materiales o ayuda para elegir
-            el estilo ideal. El equipo de Clover recibira tu mensaje en el panel
-            privado.
+            Puedes guardar estilos o pedir ayuda para elegir el modelo ideal.
+            El equipo de Clover recibira tu mensaje en el panel privado.
           </p>
+          <div class="checkout-summary" data-checkout-summary hidden></div>
         </div>
         <form class="message-form" data-message-form>
           <div class="form-grid">
@@ -377,6 +302,7 @@
             <label class="field">
               <span>Motivo</span>
               <select name="interest" required>
+                <option value="Seleccion de estilos">Seleccion de estilos</option>
                 <option value="Pedir una gorra">Pedir una gorra</option>
                 <option value="Saber detalles">Saber detalles</option>
                 <option value="Consultar disponibilidad">Consultar disponibilidad</option>
@@ -465,16 +391,77 @@
               <textarea
                 name="message"
                 rows="5"
-                placeholder="Quiero saber tallas, precio, colores disponibles o como puedo pedirla."
+                placeholder="Quiero saber tallas, colores disponibles o como puedo pedirla."
                 required
               ></textarea>
             </label>
           </div>
-          <button class="primary-button message-submit" type="submit">Enviar mensaje</button>
+          <button class="primary-button message-submit" type="submit">Enviar seleccion</button>
           <p class="form-status" data-message-status role="status"></p>
         </form>
       </section>
     </main>
+
+    <div class="drawer-backdrop" data-drawer-backdrop hidden></div>
+
+    <aside class="store-drawer" data-cart-drawer hidden aria-label="Seleccion de estilos">
+      <div class="drawer-top">
+        <h2>Seleccion</h2>
+        <button class="drawer-close" type="button" data-close-drawer>cerrar</button>
+      </div>
+      <div class="drawer-list" data-cart-list></div>
+      <div class="drawer-note" data-cart-selection-note>
+        Guarda los modelos que quieres revisar. Los detalles se confirman contigo antes de producir.
+      </div>
+      <button class="primary-button drawer-checkout" type="button" data-checkout-cart>
+        Enviar seleccion
+      </button>
+    </aside>
+
+    <aside class="store-drawer" data-account-drawer hidden aria-label="Cuenta de cliente">
+      <div class="drawer-top">
+        <h2>Cuenta</h2>
+        <button class="drawer-close" type="button" data-close-drawer>cerrar</button>
+      </div>
+      <form class="customer-form" data-customer-auth>
+        <label class="field">
+          <span>Nombre</span>
+          <input name="name" type="text" autocomplete="name" required />
+        </label>
+        <label class="field">
+          <span>Email</span>
+          <input name="email" type="email" autocomplete="email" required />
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input name="password" type="password" autocomplete="current-password" minlength="6" required />
+        </label>
+        <button class="primary-button" type="submit">Crear o entrar</button>
+        <p class="form-status" data-customer-status role="status"></p>
+      </form>
+      <div class="customer-panel" data-customer-panel hidden></div>
+      <div class="drawer-list" data-favorite-list></div>
+    </aside>
+
+    <section class="product-modal" data-product-modal hidden aria-label="Vista detallada de producto">
+      <div class="product-modal-card">
+        <button class="drawer-close product-modal-close" type="button" data-close-product-modal>
+          cerrar
+        </button>
+        <div class="product-modal-media">
+          <img data-product-modal-image alt="" />
+        </div>
+        <div class="product-modal-copy">
+          <span data-product-modal-tag></span>
+          <h2 data-product-modal-title></h2>
+          <p data-product-modal-text></p>
+          <div class="product-modal-actions">
+            <button class="primary-button" type="button" data-product-modal-add>Guardar seleccion</button>
+            <button class="secondary-button" type="button" data-product-modal-360>Ver en bloque 360</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <footer class="site-footer">
       <span>Clover Golf Co.</span>
