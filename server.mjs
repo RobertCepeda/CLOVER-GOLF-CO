@@ -5,16 +5,15 @@ import { dirname, extname, join, normalize } from "node:path";
 
 const root = process.cwd();
 const port = 5173;
-const host = "127.0.0.1";
+const host = "localhost";
 const databaseUrl = process.env.DATABASE_URL || "";
 const databaseFile = join(root, "data", "clover golf.json");
 const messagesFile = join(root, "data", "messages.json");
 const accountFile = join(root, "data", "account.json");
 const customersFile = join(root, "data", "customers.json");
-const schemaFile = join(root, "database", "schema.sql");
 const defaultAccount = {
-  email: "prueba07@gmail.com",
-  password: "12345678",
+  email: process.env.CLOVER_ADMIN_EMAIL || "admin@clover.local",
+  password: process.env.CLOVER_ADMIN_PASSWORD || "",
   twoFactorEnabled: false,
   totpSecret: "",
 };
@@ -38,7 +37,6 @@ const sendJson = (response, statusCode, payload) => {
 };
 
 let pgPoolPromise;
-let pgSchemaReady = false;
 
 const getPostgresPool = async () => {
   if (!databaseUrl) {
@@ -64,14 +62,11 @@ const ensurePostgres = async () => {
     return null;
   }
 
-  if (!pgSchemaReady) {
-    try {
-      await pool.query(await readFile(schemaFile, "utf8"));
-      pgSchemaReady = true;
-    } catch (error) {
-      console.warn(`PostgreSQL unavailable, using JSON fallback: ${error.message}`);
-      return null;
-    }
+  try {
+    await pool.query("SELECT 1");
+  } catch (error) {
+    console.warn(`PostgreSQL unavailable, using JSON fallback: ${error.message}`);
+    return null;
   }
 
   return pool;
@@ -142,13 +137,13 @@ const readMessages = async () => {
 
   if (pool) {
     const result = await pool.query(
-      `SELECT id, created_at, name, contact, interest, cap_style, message, status
-       FROM messages
+      `SELECT inquiry_id, created_at, name, contact, interest, cap_style, message, status
+       FROM inquiries
        ORDER BY created_at DESC`,
     );
 
     return result.rows.map((row) => ({
-      id: row.id,
+      id: row.inquiry_id,
       createdAt: row.created_at?.toISOString?.() || row.created_at,
       name: row.name,
       contact: row.contact,
@@ -171,14 +166,14 @@ const writeMessages = async (messages) => {
 
     try {
       await client.query("BEGIN");
-      await client.query("DELETE FROM messages");
+      await client.query("DELETE FROM inquiries");
 
       for (const message of messages) {
         await client.query(
-          `INSERT INTO messages (id, created_at, name, contact, interest, cap_style, message, status)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+          `INSERT INTO inquiries (inquiry_id, created_at, name, contact, interest, cap_style, message, status)
+           VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8)`,
           [
-            message.id,
+            getPersistableId(message.id),
             message.createdAt || new Date().toISOString(),
             message.name,
             message.contact,
@@ -210,16 +205,17 @@ const readCustomers = async () => {
 
   if (pool) {
     const result = await pool.query(
-      `SELECT id, name, email, salt, password_hash, created_at
-       FROM customers
+      `SELECT user_id, full_name, email, password_salt, password_hash, created_at
+       FROM users
+       WHERE is_admin = false
        ORDER BY created_at DESC`,
     );
 
     return result.rows.map((row) => ({
-      id: row.id,
-      name: row.name,
+      id: row.user_id,
+      name: row.full_name,
       email: row.email,
-      salt: row.salt,
+      salt: row.password_salt,
       passwordHash: row.password_hash,
       createdAt: row.created_at?.toISOString?.() || row.created_at,
     }));
@@ -237,14 +233,20 @@ const writeCustomers = async (customers) => {
 
     try {
       await client.query("BEGIN");
-      await client.query("DELETE FROM customers");
+      await client.query("DELETE FROM users WHERE is_admin = false");
 
       for (const customer of customers) {
         await client.query(
-          `INSERT INTO customers (id, name, email, salt, password_hash, created_at)
-           VALUES ($1, $2, $3, $4, $5, $6)`,
+          `INSERT INTO users (user_id, full_name, email, password_salt, password_hash, is_admin, created_at)
+           VALUES ($1::uuid, $2, $3, $4, $5, false, $6)
+           ON CONFLICT (email_normalized)
+           DO UPDATE SET
+             full_name = EXCLUDED.full_name,
+             password_salt = EXCLUDED.password_salt,
+             password_hash = EXCLUDED.password_hash,
+             updated_at = now()`,
           [
-            customer.id,
+            getPersistableId(customer.id),
             customer.name,
             customer.email,
             customer.salt,
@@ -274,9 +276,11 @@ const readAccount = async () => {
 
   if (pool) {
     const result = await pool.query(
-      `SELECT email, password, two_factor_enabled, totp_secret, updated_at
-       FROM account
-       WHERE id = 1`,
+      `SELECT email, password_salt, password_hash, two_factor_enabled, totp_secret, updated_at
+       FROM users
+       WHERE is_admin = true
+       ORDER BY created_at
+       LIMIT 1`,
     );
     const row = result.rows[0];
 
@@ -285,7 +289,8 @@ const readAccount = async () => {
 
       return {
         email: cleanText(row.email, 120) || defaultAccount.email,
-        password: cleanText(row.password, 120) || defaultAccount.password,
+        salt: row.password_salt,
+        passwordHash: row.password_hash,
         twoFactorEnabled: row.two_factor_enabled === true && Boolean(totpSecret),
         totpSecret,
         updatedAt: row.updated_at?.toISOString?.() || row.updated_at,
@@ -310,19 +315,25 @@ const writeAccount = async (account) => {
   const pool = await ensurePostgres();
 
   if (pool) {
+    const salt = account.salt || randomBytes(16).toString("hex");
+    const passwordHash = account.passwordHash || hashCustomerPassword(account.password, salt);
+
     await pool.query(
-      `INSERT INTO account (id, email, password, two_factor_enabled, totp_secret, updated_at)
-       VALUES (1, $1, $2, $3, $4, $5)
-       ON CONFLICT (id)
+      `INSERT INTO users (full_name, email, password_salt, password_hash, is_admin, two_factor_enabled, totp_secret, updated_at)
+       VALUES ('Admin Clover', $1, $2, $3, true, $4, $5, $6)
+       ON CONFLICT (email_normalized)
        DO UPDATE SET
          email = EXCLUDED.email,
-         password = EXCLUDED.password,
+         password_salt = EXCLUDED.password_salt,
+         password_hash = EXCLUDED.password_hash,
+         is_admin = true,
          two_factor_enabled = EXCLUDED.two_factor_enabled,
          totp_secret = EXCLUDED.totp_secret,
          updated_at = EXCLUDED.updated_at`,
       [
         account.email,
-        account.password,
+        salt,
+        passwordHash,
         account.twoFactorEnabled === true,
         account.totpSecret || "",
         account.updatedAt || new Date().toISOString(),
@@ -359,6 +370,40 @@ const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
 const hashCustomerPassword = (password, salt) =>
   createHmac("sha256", salt).update(password).digest("hex");
+
+const generateUuidV7 = () => {
+  const bytes = randomBytes(16);
+  let timestamp = BigInt(Date.now());
+
+  for (let index = 5; index >= 0; index -= 1) {
+    bytes[index] = Number(timestamp & 0xffn);
+    timestamp >>= 8n;
+  }
+
+  bytes[6] = (bytes[6] & 0x0f) | 0x70;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+  const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(
+    16,
+    20,
+  )}-${hex.slice(20)}`;
+};
+
+const isUuid = (value) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    String(value || ""),
+  );
+
+const getPersistableId = (value) => (isUuid(value) ? value : generateUuidV7());
+
+const verifyAccountPassword = (account, password) => {
+  if (account.passwordHash && account.salt) {
+    return hashCustomerPassword(password, account.salt) === account.passwordHash;
+  }
+
+  return password === account.password;
+};
 
 const generateBase32Secret = () => {
   const bytes = randomBytes(20);
@@ -466,16 +511,12 @@ const buildOtpAuthUrl = (email, secret) => {
 const resolveRoute = (cleanPath) => {
   const path = cleanPath.replace(/\\/g, "/");
 
-  if (path === "/" || path === "/robert") {
+  if (path === "/") {
     return "index.html";
   }
 
-  if (path === "/admin" || path === "/robert/admin") {
+  if (path === "/admin") {
     return "admin.html";
-  }
-
-  if (path.startsWith("/robert/")) {
-    return path.slice("/robert/".length);
   }
 
   return path.replace(/^\/+/, "");
@@ -519,7 +560,7 @@ createServer(async (request, response) => {
 
       const salt = randomBytes(16).toString("hex");
       const nextCustomer = {
-        id: `${Date.now()}-${randomBytes(4).toString("hex")}`,
+        id: generateUuidV7(),
         name,
         email,
         salt,
@@ -550,7 +591,7 @@ createServer(async (request, response) => {
       const password = cleanText(payload.password, 120);
       const twoFactorCode = cleanText(payload.twoFactorCode, 12);
 
-      if (email === account.email.toLowerCase() && password === account.password) {
+      if (email === account.email.toLowerCase() && verifyAccountPassword(account, password)) {
         if (account.twoFactorEnabled) {
           if (!twoFactorCode) {
             sendJson(response, 202, {
@@ -598,7 +639,7 @@ createServer(async (request, response) => {
       const account = await readAccount();
       const currentPassword = cleanText(payload.currentPassword, 120);
 
-      if (currentPassword !== account.password) {
+      if (!verifyAccountPassword(account, currentPassword)) {
         sendJson(response, 403, { error: "La contrasena actual no coincide." });
         return;
       }
@@ -628,7 +669,7 @@ createServer(async (request, response) => {
       const secret = normalizeSecret(payload.secret);
       const twoFactorCode = cleanText(payload.twoFactorCode, 12);
 
-      if (currentPassword !== account.password) {
+      if (!verifyAccountPassword(account, currentPassword)) {
         sendJson(response, 403, { error: "La contrasena actual no coincide." });
         return;
       }
@@ -686,7 +727,7 @@ createServer(async (request, response) => {
       const newPassword = cleanText(payload.newPassword, 120);
       const twoFactorCode = cleanText(payload.twoFactorCode, 12);
 
-      if (currentPassword !== account.password) {
+      if (!verifyAccountPassword(account, currentPassword)) {
         sendJson(response, 403, { error: "La contrasena actual no coincide." });
         return;
       }
@@ -710,6 +751,8 @@ createServer(async (request, response) => {
         ...account,
         email,
         password: newPassword || account.password,
+        salt: newPassword ? "" : account.salt,
+        passwordHash: newPassword ? "" : account.passwordHash,
         updatedAt: new Date().toISOString(),
       };
 
@@ -744,7 +787,7 @@ createServer(async (request, response) => {
 
       const messages = await readMessages();
       const nextMessage = {
-        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        id: generateUuidV7(),
         createdAt: new Date().toISOString(),
         name,
         contact,
@@ -781,6 +824,4 @@ createServer(async (request, response) => {
   console.log("Clover Golf Co. running at:");
   console.log(`- Principal: http://${host}:${port}`);
   console.log(`- Admin: http://${host}:${port}/admin`);
-  console.log(`- Robert principal: http://localhost:${port}/robert`);
-  console.log(`- Robert admin: http://localhost:${port}/robert/admin`);
 });

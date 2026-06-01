@@ -8,7 +8,7 @@
     "dev": "node server.mjs",
     "start": "node server.mjs",
     "db:init": "node scripts/init-postgres.mjs",
-    "check": "node --check script.js && node --check server.mjs && node --check scripts/security-scan.mjs",
+    "check": "node --check script.js && node --check server.mjs && node --check scripts/security-scan.mjs && node --check scripts/init-postgres.mjs",
     "security:scan": "node scripts/security-scan.mjs"
   },
   "dependencies": {

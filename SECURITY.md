@@ -14,9 +14,13 @@ pnpm run dev
 PostgreSQL:
 
 ```powershell
-setx DATABASE_URL "postgres://postgres:postgres@localhost:5432/clover%20golf"
-pnpm install
-pnpm run db:init
+$env:PGPASSWORD="YOUR_POSTGRES_PASSWORD"
+$env:DATABASE_ADMIN_URL="postgres://postgres:$env:PGPASSWORD@localhost:5432/postgres"
+$env:DATABASE_URL="postgres://postgres:$env:PGPASSWORD@localhost:5432/clover%20golf"
+$env:CLOVER_ADMIN_EMAIL="YOUR_ADMIN_EMAIL"
+$env:CLOVER_ADMIN_PASSWORD="YOUR_ADMIN_PASSWORD"
+corepack pnpm install --ignore-scripts
+corepack pnpm run db:init
 ```
 
 Run the local dependency guard before adding packages:
