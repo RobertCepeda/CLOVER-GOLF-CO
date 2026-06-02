@@ -1,12 +1,19 @@
 const header = document.querySelector(".site-header");
 
+const updateHeaderState = () => {
+  if (!header || !document.body.classList.contains("store-page")) {
+    return;
+  }
+
+  const activeView = document.body.dataset.activeView || "inicio";
+  const isScrolled = window.scrollY > 12;
+  document.body.classList.toggle("is-header-scrolled", isScrolled);
+  document.body.classList.toggle("is-header-solid", isScrolled || activeView !== "inicio");
+};
+
 if (header) {
-  window.addEventListener("scroll", () => {
-    const isScrolled = window.scrollY > 12;
-    header.style.boxShadow = isScrolled
-      ? "0 14px 34px rgba(12, 36, 22, 0.08)"
-      : "none";
-  });
+  window.addEventListener("scroll", updateHeaderState, { passive: true });
+  updateHeaderState();
 }
 
 const adminSessionKey = "cloverAdminAuthenticated";
@@ -26,7 +33,7 @@ const storeProducts = [
     name: "Signature Leather",
     category: "gorras",
     tags: ["cuero", "bordado", "clasica"],
-    image: "assets/cap-thumb-signature-leather.png?v=7",
+    image: "assets/cap-thumb-signature-leather.png?v=8",
     view360: "assets/cap-360-signature-leather-production.png?v=2",
     description: "Crema, verde bosque y parche de cuero grabado para el modelo principal.",
   },
@@ -35,7 +42,7 @@ const storeProducts = [
     name: "Forest Classic",
     category: "gorras",
     tags: ["bordado", "verde", "clasica"],
-    image: "assets/cap-thumb-forest-classic.png?v=7",
+    image: "assets/cap-thumb-forest-classic.png?v=8",
     view360: "assets/cap-360-forest-classic-production.png?v=2",
     description: "Gorra verde completa con bordado crema, textura de tela y perfil limpio.",
   },
@@ -44,7 +51,7 @@ const storeProducts = [
     name: "Stripe Course",
     category: "gorras",
     tags: ["bordado", "rayas", "retro"],
-    image: "assets/cap-thumb-stripe-course.png?v=7",
+    image: "assets/cap-thumb-stripe-course.png?v=8",
     view360: "assets/cap-360-stripe-course-production.png?v=2",
     description: "Rayas verticales crema y verde con presencia retro de campo.",
   },
@@ -53,7 +60,7 @@ const storeProducts = [
     name: "Cream Heritage",
     category: "gorras",
     tags: ["bordado", "crema", "clasica"],
-    image: "assets/cap-thumb-cream-heritage.png?v=7",
+    image: "assets/cap-thumb-cream-heritage.png?v=8",
     view360: "assets/cap-360-cream-heritage-production.png?v=2",
     description: "Base crema limpia con logo Clover bordado al frente.",
   },
@@ -62,7 +69,7 @@ const storeProducts = [
     name: "Olive Performance",
     category: "gorras",
     tags: ["performance", "oliva", "perforada"],
-    image: "assets/cap-thumb-olive-performance.png?v=7",
+    image: "assets/cap-thumb-olive-performance.png?v=8",
     view360: "assets/cap-360-olive-performance-production.png?v=2",
     description: "Oliva sobrio, textura ligera y perforaciones laterales.",
   },
@@ -71,7 +78,7 @@ const storeProducts = [
     name: "Tour Cream",
     category: "gorras",
     tags: ["bordado", "crema", "verde"],
-    image: "assets/cap-thumb-tour-cream.png?v=7",
+    image: "assets/cap-thumb-tour-cream.png?v=8",
     view360: "assets/cap-360-tour-cream-production.png?v=2",
     description: "Crema con visera verde y logo centrado sin cordon frontal.",
   },
@@ -80,7 +87,7 @@ const storeProducts = [
     name: "Women's Bucket Hat",
     category: "mujer",
     tags: ["mujer", "bucket", "bordado"],
-    image: "assets/cap-thumb-womens-bucket.png?v=7",
+    image: "assets/cap-thumb-womens-bucket.png?v=8",
     view360: "assets/cap-360-womens-bucket-production.png?v=2",
     description: "Bucket hat crema con textura sutil y logo Clover bordado al frente.",
   },
@@ -89,7 +96,7 @@ const storeProducts = [
     name: "Jiuguva Visor",
     category: "mujer",
     tags: ["mujer", "visor", "performance"],
-    image: "assets/cap-thumb-jiuguva-visor.png?v=7",
+    image: "assets/cap-thumb-jiuguva-visor.png?v=9",
     view360: "assets/cap-360-jiuguva-visor-production.png?v=4",
     description: "Visor blanco con banda respirable y logo bordado centrado arriba.",
   },
@@ -98,7 +105,7 @@ const storeProducts = [
     name: "Fairway Classic",
     category: "mujer",
     tags: ["mujer", "bordado", "verde"],
-    image: "assets/cap-thumb-fairway-classic.png?v=7",
+    image: "assets/cap-thumb-fairway-classic.png?v=8",
     view360: "assets/cap-360-fairway-classic-production.png?v=2",
     description: "Gorra femenina en verde profundo con logo Clover crema bordado.",
   },
@@ -107,7 +114,7 @@ const storeProducts = [
     name: "Cream Fairway",
     category: "mujer",
     tags: ["mujer", "crema", "verde"],
-    image: "assets/cap-thumb-cream-fairway.png?v=7",
+    image: "assets/cap-thumb-cream-fairway.png?v=8",
     view360: "assets/cap-360-cream-fairway-production.png?v=2",
     description: "Base crema con visera verde para un look femenino de campo.",
   },
@@ -480,6 +487,8 @@ const showView = (viewName, options = {}) => {
   });
 
   updateActiveNavLinks(nextView);
+  document.body.dataset.activeView = nextView;
+  updateHeaderState();
 
   if (!options.skipHash && window.location.hash !== `#${nextView}`) {
     history.pushState(null, "", `#${nextView}`);
@@ -825,16 +834,16 @@ if (isAdminPage) {
   const messageCount = document.querySelector("[data-message-count]");
   const lastMessage = document.querySelector("[data-last-message]");
   const capImagesByStyle = {
-    "Signature Leather": "assets/cap-thumb-signature-leather.png?v=7",
-    "Forest Classic": "assets/cap-thumb-forest-classic.png?v=7",
-    "Stripe Course": "assets/cap-thumb-stripe-course.png?v=7",
-    "Cream Heritage": "assets/cap-thumb-cream-heritage.png?v=7",
-    "Olive Performance": "assets/cap-thumb-olive-performance.png?v=7",
-    "Tour Cream": "assets/cap-thumb-tour-cream.png?v=7",
-    "Women's Bucket Hat": "assets/cap-thumb-womens-bucket.png?v=7",
-    "Jiuguva Visor": "assets/cap-thumb-jiuguva-visor.png?v=7",
-    "Fairway Classic": "assets/cap-thumb-fairway-classic.png?v=7",
-    "Cream Fairway": "assets/cap-thumb-cream-fairway.png?v=7",
+    "Signature Leather": "assets/cap-thumb-signature-leather.png?v=8",
+    "Forest Classic": "assets/cap-thumb-forest-classic.png?v=8",
+    "Stripe Course": "assets/cap-thumb-stripe-course.png?v=8",
+    "Cream Heritage": "assets/cap-thumb-cream-heritage.png?v=8",
+    "Olive Performance": "assets/cap-thumb-olive-performance.png?v=8",
+    "Tour Cream": "assets/cap-thumb-tour-cream.png?v=8",
+    "Women's Bucket Hat": "assets/cap-thumb-womens-bucket.png?v=8",
+    "Jiuguva Visor": "assets/cap-thumb-jiuguva-visor.png?v=9",
+    "Fairway Classic": "assets/cap-thumb-fairway-classic.png?v=8",
+    "Cream Fairway": "assets/cap-thumb-cream-fairway.png?v=8",
   };
   const accountState = {
     twoFactorEnabled: false,
@@ -995,7 +1004,7 @@ if (isAdminPage) {
 
     const capImage = document.createElement("img");
     const capStyle = message.capStyle || "No especificado";
-    capImage.src = capImagesByStyle[capStyle] || "assets/cap-thumb-cream-fairway.png?v=7";
+    capImage.src = capImagesByStyle[capStyle] || "assets/cap-thumb-cream-fairway.png?v=8";
     capImage.alt = `Gorra seleccionada: ${capStyle}`;
 
     const capName = document.createElement("strong");

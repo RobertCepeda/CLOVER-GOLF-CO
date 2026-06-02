@@ -10,6 +10,7 @@
   --muted: #667263;
   --line: rgba(18, 63, 39, 0.16);
   --shadow: 0 24px 80px rgba(12, 36, 22, 0.16);
+  --store-header-height: 88px;
 }
 
 * {
@@ -1535,18 +1536,27 @@ h2 {
 }
 
 .store-page .site-header {
+  position: fixed;
+  left: 0;
+  right: 0;
   grid-template-columns: auto minmax(0, 1fr) auto;
   top: 0;
-  min-height: 88px;
-  border-bottom: 1px solid rgba(111, 132, 32, 0.26);
-  background:
-    linear-gradient(90deg, rgba(242, 233, 207, 0.96), rgba(255, 255, 255, 0.96) 48%, rgba(244, 237, 217, 0.96)),
-    repeating-linear-gradient(135deg, rgba(18, 63, 39, 0.04) 0 1px, transparent 1px 13px);
-  box-shadow: 0 18px 54px rgba(12, 36, 22, 0.08);
+  z-index: 40;
+  min-height: var(--store-header-height);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  background: rgba(8, 30, 19, 0.24);
+  box-shadow: none;
+  backdrop-filter: blur(18px);
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    color 180ms ease;
 }
 
 .store-page .site-header::after {
-  content: "";
+  content: none;
   position: absolute;
   left: clamp(18px, 4vw, 56px);
   right: clamp(18px, 4vw, 56px);
@@ -1557,19 +1567,35 @@ h2 {
   pointer-events: none;
 }
 
+.store-page.is-header-solid .site-header {
+  border-bottom-color: rgba(111, 132, 32, 0.22);
+  color: var(--ink);
+  background:
+    linear-gradient(90deg, rgba(242, 233, 207, 0.96), rgba(255, 255, 255, 0.96) 48%, rgba(244, 237, 217, 0.96)),
+    repeating-linear-gradient(135deg, rgba(18, 63, 39, 0.04) 0 1px, transparent 1px 13px);
+  box-shadow: 0 18px 54px rgba(12, 36, 22, 0.08);
+}
+
+.store-page .brand-lockup,
+.store-page .main-nav a,
+.store-page .icon-button {
+  color: currentColor;
+}
+
 .store-page .main-nav {
   justify-self: center;
   display: flex;
   gap: 4px;
   padding: 6px;
-  border: 1px solid rgba(18, 63, 39, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.66);
+  background: rgba(255, 255, 255, 0.14);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.54);
+  backdrop-filter: blur(14px);
 }
 
 .store-page .main-nav a {
-  color: #151a17;
+  color: rgba(255, 255, 255, 0.9);
   text-transform: uppercase;
   font-size: 13px;
   border-radius: 999px;
@@ -1577,6 +1603,21 @@ h2 {
 
 .store-page .main-nav a.is-active,
 .store-page .main-nav a:hover {
+  color: var(--deep-green);
+  background: #ffffff;
+}
+
+.store-page.is-header-solid .main-nav {
+  border-color: rgba(18, 63, 39, 0.14);
+  background: rgba(255, 255, 255, 0.66);
+}
+
+.store-page.is-header-solid .main-nav a {
+  color: #151a17;
+}
+
+.store-page.is-header-solid .main-nav a.is-active,
+.store-page.is-header-solid .main-nav a:hover {
   color: var(--cream);
   background: var(--deep-green);
 }
@@ -1712,7 +1753,7 @@ h2 {
 
 .hero-store {
   position: relative;
-  min-height: calc(100vh - 88px);
+  min-height: 100vh;
   display: grid;
   align-items: center;
   overflow: hidden;
@@ -1726,22 +1767,14 @@ h2 {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 1;
   background:
-    linear-gradient(90deg, rgba(12, 36, 22, 0.84), rgba(12, 36, 22, 0.22) 48%, rgba(12, 36, 22, 0.7)),
-    linear-gradient(180deg, rgba(168, 99, 50, 0.08), rgba(12, 36, 22, 0.76));
+    linear-gradient(90deg, rgba(6, 25, 15, 0.9), rgba(8, 30, 19, 0.5) 44%, rgba(8, 30, 19, 0.25) 74%),
+    linear-gradient(180deg, rgba(8, 30, 19, 0.1), rgba(8, 30, 19, 0.42));
 }
 
 .hero-store::before {
-  content: "";
-  position: absolute;
-  z-index: 1;
-  left: clamp(18px, 7vw, 92px);
-  right: clamp(18px, 7vw, 92px);
-  bottom: clamp(18px, 4vw, 44px);
-  height: 6px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, var(--cream), var(--clover-olive), var(--leather));
-  opacity: 0.82;
+  content: none;
 }
 
 .hero-store-image {
@@ -1750,15 +1783,16 @@ h2 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
-  filter: saturate(0.94) contrast(1.04);
+  object-position: center right;
+  filter: saturate(0.98) contrast(1.04);
 }
 
 .hero-store-copy {
   position: relative;
   z-index: 2;
-  width: min(760px, calc(100% - 36px));
+  width: min(820px, calc(100% - 36px));
   margin-left: clamp(18px, 7vw, 92px);
+  padding-top: var(--store-header-height);
 }
 
 .hero-store h1,
@@ -1766,11 +1800,29 @@ h2 {
   color: #ffffff;
 }
 
+.hero-store h1 {
+  font-size: clamp(62px, 10vw, 154px);
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-shadow: 0 18px 52px rgba(0, 0, 0, 0.26);
+}
+
 .hero-store p:not(.eyebrow) {
-  max-width: 540px;
-  color: rgba(255, 255, 255, 0.82);
+  max-width: 590px;
+  color: rgba(255, 255, 255, 0.86);
   font-size: clamp(18px, 2vw, 23px);
   line-height: 1.55;
+}
+
+.hero-store .primary-button {
+  color: var(--cream);
+  background: rgba(18, 63, 39, 0.92);
+}
+
+.hero-store .secondary-button {
+  color: var(--deep-green);
+  border-color: rgba(255, 255, 255, 0.68);
+  background: rgba(255, 255, 255, 0.72);
 }
 
 .home-view {
@@ -1961,8 +2013,9 @@ h2 {
 
 .products-section {
   position: relative;
-  min-height: calc(100vh - 88px);
-  padding: clamp(44px, 6vw, 78px) clamp(16px, 4vw, 56px);
+  min-height: 100vh;
+  padding: calc(var(--store-header-height) + clamp(44px, 6vw, 78px)) clamp(16px, 4vw, 56px)
+    clamp(44px, 6vw, 78px);
   overflow: hidden;
   background:
     linear-gradient(180deg, rgba(242, 233, 207, 0.72), rgba(255, 255, 255, 0.92) 34%),
@@ -1979,6 +2032,12 @@ h2 {
   height: 1px;
   background: linear-gradient(90deg, var(--deep-green), rgba(111, 132, 32, 0.45), transparent);
   pointer-events: none;
+}
+
+.store-page .cap-360-section,
+.store-page .lookbook-section,
+.store-page .message-section {
+  padding-top: calc(var(--store-header-height) + clamp(48px, 8vw, 92px));
 }
 
 .products-heading {
@@ -2108,7 +2167,7 @@ h2 {
   position: relative;
   width: 100%;
   height: 100%;
-  padding: 18px 20px 10px;
+  padding: 28px 22px 16px;
   background: transparent;
 }
 
@@ -2447,6 +2506,10 @@ h2 {
 }
 
 @media (max-width: 900px) {
+  .store-page {
+    --store-header-height: 146px;
+  }
+
   .store-page .site-header {
     grid-template-columns: auto auto;
   }
@@ -2486,6 +2549,10 @@ h2 {
 }
 
 @media (max-width: 620px) {
+  .store-page {
+    --store-header-height: 136px;
+  }
+
   .store-page .site-header {
     gap: 10px;
   }
@@ -2500,11 +2567,12 @@ h2 {
   }
 
   .hero-store {
-    min-height: calc(100vh - 110px);
+    min-height: 100vh;
   }
 
   .hero-store-copy {
     margin: 0 auto;
+    padding-top: calc(var(--store-header-height) + 12px);
   }
 
   .home-marquee {
