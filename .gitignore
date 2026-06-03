@@ -5,3 +5,12 @@ data/
 .env.*
 !.env.example
 *.log
+tmp/
+
+# Concept caps saved locally until they are ready for the catalog.
+assets/cap-white-green-trim.png
+assets/cap-thumb-white-green-trim.png
+assets/cap-360-white-green-trim-production.png
+assets/cap-lavender-classic.png
+assets/cap-thumb-lavender-classic.png
+assets/cap-360-lavender-classic-production.png

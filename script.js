@@ -8,7 +8,7 @@ const updateHeaderState = () => {
   const activeView = document.body.dataset.activeView || "inicio";
   const isScrolled = window.scrollY > 12;
   document.body.classList.toggle("is-header-scrolled", isScrolled);
-  document.body.classList.toggle("is-header-solid", isScrolled || activeView !== "inicio");
+  document.body.classList.toggle("is-header-solid", activeView !== "inicio");
 };
 
 if (header) {
